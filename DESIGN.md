@@ -185,19 +185,30 @@ These tasks are intentionally parallelizable. Create a branch per agent (e.g., `
    - Acceptance: content-driven carousel with edit docs and demo slides.
    - **Status (Agent 5):** **not started** — no carousel implementation or content schema found in the repo.
 
-6. **Agent 6 — Smooth Scrolling & UX**
-   - Integrate Lenis for natural scroll, anchor handling, and reduced-motion support.
-   - Acceptance: smooth demo with toggle for reduced-motion and stable anchor behavior.
-   - **Status (Agent 6):** **not started** — no Lenis or smooth-scroll integration detected in the workspace.
-
-7. **Agent 7 — Deployment & CI**
-   - Configure Vercel preview deployments and GitHub Actions (lint, typecheck, build).
-   - Acceptance: passing CI, preview link on PR.
-   - **Status (Agent 7):** **not started** — no GitHub Actions workflows or Vercel configuration found; repo hooks only.
-
-8. **Agent 8 — QA, Accessibility & Performance**
-   - Run Lighthouse, contrast audits, cross-browser checks, keyboard navigation tests, and document fixes.
-   - Acceptance: checklist with issues fixed or documented and target scores met.
-   - **Status (Agent 8):** **not started** — no QA artifacts (Lighthouse reports, contrast audits, or test results) found in the repo.
-
 > Tip: Keep PRs small and focused. Each agent should include a short README in the branch describing what was changed, how to test, and the acceptance criteria. Let's assign agents and start parallel work once you confirm — I can coordinate branches and review cycles.
+
+---
+
+## Dev Server — `npm run dev` (Errors & Action Items) ⚠️
+
+During a local `npm run dev` run on Windows the dev server failed to compile with the following notable findings:
+
+- **Critical build error (PostCSS / Tailwind):**
+  - Message: "It looks like you're trying to use `tailwindcss` directly as a PostCSS plugin. The PostCSS plugin has moved to a separate package... install `@tailwindcss/postcss` and update your PostCSS configuration."
+  - Symptom: Next.js returned **500** for `/` and the CSS pipeline failed to load `./src/styles/globals.css`.
+  - Action items:
+    1. Install the new PostCSS adapter for Tailwind: `npm install -D @tailwindcss/postcss`.
+    2. Update `postcss.config.js` to use `@tailwindcss/postcss` as the plugin (or follow Tailwind's latest setup docs).
+    3. Re-run `npm run dev` and confirm CSS compiles and pages load.
+
+- **Next.js configuration warning:**
+  - Message: `Unrecognized key(s) in object: 'swcMinify'` — remove or update `swcMinify` to match the installed Next.js version's config API.
+  - Action item: Inspect `next.config.js`, remove deprecated/unrecognized keys or migrate to the current config schema.
+
+- **Workspace root / lockfile warning:**
+  - Message: Next.js inferred workspace root based on `package-lock.json` found at `C:\Users\Saksham Kapoor\package-lock.json`, and reported an extra lockfile in the project.
+  - Action item: Either set `outputFileTracingRoot` in `next.config.js` to the project root or remove/move the extra lockfile to avoid root mis-detection.
+
+- **Current status:** Dev server did not complete successfully due to the CSS/PostCSS error. After fixing the PostCSS/Tailwind setup, verify the other warnings are addressed and run a fresh `npm run dev` until the site compiles with no 500s.
+
+If you want, I can open a branch (`fix/dev-postcss`) and implement the recommended changes (install package, update `postcss.config.js`, run and verify) and open a PR with notes. 👍
