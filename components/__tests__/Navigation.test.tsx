@@ -40,13 +40,13 @@ describe('Navigation', () => {
     // minor scale
     // @ts-ignore
     window.scrollY = 140
-    fireEvent(window, new Event('scroll'))
+    window.dispatchEvent(new Event('scroll'))
     expect(nav.getAttribute('data-scale')).toBe('0.96')
 
     // deep scale
     // @ts-ignore
     window.scrollY = 600
-    fireEvent(window, new Event('scroll'))
+    window.dispatchEvent(new Event('scroll'))
     expect(nav.getAttribute('data-scale')).toBe('0.94')
   })
 })
