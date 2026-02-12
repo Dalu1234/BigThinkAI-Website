@@ -38,6 +38,7 @@ html, body {
   font-family: var(--font-sans, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth; /* enables in-page anchor smooth scrolling */
 }
 
 /* Explicit font utilities for component-level control */

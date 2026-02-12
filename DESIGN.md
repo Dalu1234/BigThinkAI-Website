@@ -171,27 +171,33 @@ These tasks are intentionally parallelizable. Create a branch per agent (e.g., `
    - Implement pill-shaped floating nav with `backdrop-filter`, subtle border, and scroll scaling (0.96 / 0.94).
    - Ensure keyboard accessibility and mobile adaptation.
    - Acceptance: accessible header with animations and unit/smoke tests.
+   - **Status (Agent 3):** **in progress** — navigation component added at `components/Navigation.tsx` and a single-page site scaffolded at `pages/index.tsx` (includes a nav smoke-test control); next steps: add unit tests, refine mobile interactions, and open branch `agent/3-navigation` for review.
 
 4. **Agent 4 — Bento Cards & Motion**
    - Build `BentoCard` component (shadows, inset rim, carved edge) and magnetic cursor tracking with Framer Motion.
    - Provide variants for content, gallery, and featured states.
    - Acceptance: interactive demo page with motion settings and perf budget.
+   - **Status (Agent 4):** **not started** — no `BentoCard` component or Framer Motion integration detected in the workspace.
 
 5. **Agent 5 — Featured Projects Carousel & Content**
    - Implement responsive carousel (EDGE, Pyoneer, Bitcamp, Research) with content schema (static JSON or headless CMS).
    - Include ARIA roles and swipe support.
    - Acceptance: content-driven carousel with edit docs and demo slides.
+   - **Status (Agent 5):** **not started** — no carousel implementation or content schema found in the repo.
 
 6. **Agent 6 — Smooth Scrolling & UX**
    - Integrate Lenis for natural scroll, anchor handling, and reduced-motion support.
    - Acceptance: smooth demo with toggle for reduced-motion and stable anchor behavior.
+   - **Status (Agent 6):** **not started** — no Lenis or smooth-scroll integration detected in the workspace.
 
 7. **Agent 7 — Deployment & CI**
    - Configure Vercel preview deployments and GitHub Actions (lint, typecheck, build).
    - Acceptance: passing CI, preview link on PR.
+   - **Status (Agent 7):** **not started** — no GitHub Actions workflows or Vercel configuration found; repo hooks only.
 
 8. **Agent 8 — QA, Accessibility & Performance**
    - Run Lighthouse, contrast audits, cross-browser checks, keyboard navigation tests, and document fixes.
    - Acceptance: checklist with issues fixed or documented and target scores met.
+   - **Status (Agent 8):** **not started** — no QA artifacts (Lighthouse reports, contrast audits, or test results) found in the repo.
 
 > Tip: Keep PRs small and focused. Each agent should include a short README in the branch describing what was changed, how to test, and the acceptance criteria. Let's assign agents and start parallel work once you confirm — I can coordinate branches and review cycles.
