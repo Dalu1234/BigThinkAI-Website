@@ -72,8 +72,8 @@ export default function Home() {
               <h4 className="text-sm font-semibold">Theme Controls</h4>
               <div style={{marginTop:12}}>
                 <label className="text-sm">Primary preset</label>
-                <select id="primarySelect" style={{width:'100%', padding:8, marginTop:6}} defaultValue="#2563EB" onChange={(e)=>{
-                  const val = (e.target as HTMLSelectElement).value
+                <select id="primarySelect" style={{width:'100%', padding:8, marginTop:6}} defaultValue="#2563EB" onChange={(e: React.ChangeEvent<HTMLSelectElement>)=>{
+                  const val = e.target.value
                   document.documentElement.style.setProperty('--color-primary', val)
                   const rgb = hexToRgb(val)
                   document.documentElement.style.setProperty('--color-primary-rgb', rgb.join(', '))
@@ -108,7 +108,7 @@ export default function Home() {
                     const report = document.getElementById('nav-test-report')
                     const btn = document.querySelector('.site-nav button[aria-expanded]') as HTMLButtonElement | null
                     if (btn) btn.click() // quick expand/collapse smoke
-                    const nav = document.querySelector('.site-nav')
+                    const nav = document.querySelector('.site-nav') as HTMLElement | null
                     if (nav) nav.dispatchEvent(new Event('scroll'))
                     setTimeout(()=>{
                       const out = document.getElementById('nav-test-report')
@@ -128,7 +128,7 @@ export default function Home() {
         <section id="join" className="py-12">
           <h2 className="h2-serif">Join</h2>
           <p className="mt-3">Sign up to get updates on projects and workshops.</p>
-          <form style={{marginTop:12, display:'flex', gap:8, maxWidth:480}} onSubmit={(e)=>{e.preventDefault(); alert('Thanks — sign-ups are mocked in this demo.')}}>
+          <form style={{marginTop:12, display:'flex', gap:8, maxWidth:480}} onSubmit={(e: React.FormEvent<HTMLFormElement>)=>{e.preventDefault(); alert('Thanks — sign-ups are mocked in this demo.')}}>
             <input aria-label="Email address" style={{flex:1, padding:10, borderRadius:8, border:'1px solid var(--color-border)'}} placeholder="your@university.edu" />
             <button className="btn-primary" type="submit">Sign up</button>
           </form>
@@ -142,7 +142,7 @@ export default function Home() {
   )
 }
 
-function hexToRgb(hex:string) {
-  const h = hex.replace('#','')
-  return [parseInt(h.substring(0,2),16), parseInt(h.substring(2,4),16), parseInt(h.substring(4,6),16)]
+function hexToRgb(hex: string): number[] {
+  const h = hex.replace('#', '')
+  return [parseInt(h.substring(0, 2), 16), parseInt(h.substring(2, 4), 16), parseInt(h.substring(4, 6), 16)]
 }
