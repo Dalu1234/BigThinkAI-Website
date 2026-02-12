@@ -8,7 +8,6 @@ Replace `inter`/`jetbrainsMono` with local Geist fonts if you have licensed font
 */
 
 import { Newsreader } from 'next/font/google'
-import localFont from 'next/font/local'
 import { Inter } from 'next/font/google'
 import { JetBrains_Mono } from 'next/font/google'
 

@@ -25,7 +25,7 @@ export default function BentoCard({ variant = 'content', title, subtitle, image,
         // @ts-ignore - gracefully handle environments where framer-motion is not installed
         const m = await import('framer-motion')
         if (mounted) setMotionModule(m)
-      } catch (err) {
+      } catch (_err) {
         if (mounted) setMotionModule(null)
       }
     })()
