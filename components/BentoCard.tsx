@@ -14,19 +14,22 @@ interface BentoCardProps {
 export default function BentoCard({ variant = 'content', title, subtitle, image, children, className = '' }: BentoCardProps) {
   const ref = useRef<HTMLDivElement | null>(null)
   const animRef = useRef<number | null>(null)
-  const [motionAvailable, setMotionAvailable] = useState<boolean>(false)
-  const [transformStyle, setTransformStyle] = useState({ x: 0, y: 0, rx: 0, ry: 0, scale: 1 })
+  const [motionModule, setMotionModule] = useState<any>(null)
+  const [transformStyle, setTransformStyle] = useState<{ x: number; y: number; rx: number; ry: number; scale: number }>({ x: 0, y: 0, rx: 0, ry: 0, scale: 1 })
 
   useEffect(() => {
     // feature-detect framer-motion by attempting dynamic import (ssr-safe)
     let mounted = true
-    import('framer-motion')
-      .then((m) => {
-        if (mounted) setMotionAvailable(true)
-      })
-      .catch(() => {
-        if (mounted) setMotionAvailable(false)
-      })
+    ;(async () => {
+      try {
+        // @ts-ignore - gracefully handle environments where framer-motion is not installed
+        const m = await import('framer-motion')
+        if (mounted) setMotionModule(m)
+      } catch (err) {
+        if (mounted) setMotionModule(null)
+      }
+    })()
+
     return () => {
       mounted = false
       if (animRef.current) cancelAnimationFrame(animRef.current)
@@ -40,15 +43,16 @@ export default function BentoCard({ variant = 'content', title, subtitle, image,
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
     let intensity = 18
+    const elNode = el
     function onPointerMove(e: PointerEvent) {
-      const rect = el.getBoundingClientRect()
+      const rect = elNode!.getBoundingClientRect()
       const cx = rect.left + rect.width / 2
       const cy = rect.top + rect.height / 2
       const dx = e.clientX - cx
       const dy = e.clientY - cy
       // normalize
-      const nx = (dx / (rect.width / 2))
-      const ny = (dy / (rect.height / 2))
+      const nx = dx / (rect.width / 2)
+      const ny = dy / (rect.height / 2)
       // limit
       const rx = Math.max(-1, Math.min(1, -ny))
       const ry = Math.max(-1, Math.min(1, nx))
@@ -67,9 +71,9 @@ export default function BentoCard({ variant = 'content', title, subtitle, image,
       })
     }
 
-    el.addEventListener('pointermove', onPointerMove)
-    el.addEventListener('pointerleave', onLeave)
-    el.addEventListener('pointercancel', onLeave)
+    elNode!.addEventListener('pointermove', onPointerMove)
+    elNode!.addEventListener('pointerleave', onLeave)
+    elNode!.addEventListener('pointercancel', onLeave)
 
     return () => {
       el.removeEventListener('pointermove', onPointerMove)
@@ -78,7 +82,7 @@ export default function BentoCard({ variant = 'content', title, subtitle, image,
     }
   }, [])
 
-  const dataMag = motionAvailable ? 'true' : 'true' // enable hint regardless; motion will enhance if available
+  const dataMag = motionModule ? 'true' : 'false' // hint if advanced motion is available
 
   const base = `bento-card ${className}`
 
@@ -93,18 +97,21 @@ export default function BentoCard({ variant = 'content', title, subtitle, image,
       <div className="bento-card__rim" aria-hidden="true" />
 
       {image ? (
-        <div className="bento-card__media" style={motionAvailable ? undefined : fallbackStyle}>
-          {motionAvailable ? (
-            // When framer-motion is available, use its motion.div for smooth spring physics
-            // dynamic import ensures no SSR failure if framer-motion isn't installed
-            // eslint-disable-next-line @typescript-eslint/no-var-requires
-            require('framer-motion').motion.div({
-              style: { width: '100%', height: '100%' },
-              animate: { x: transformStyle.x / 6, y: transformStyle.y / 6, rotateX: transformStyle.rx, rotateY: transformStyle.ry, scale: transformStyle.scale },
-              transition: { type: 'spring', stiffness: 220, damping: 26 }
-            }, (
-              <img src={image} alt={title ?? 'Bento media'} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-            ))
+        <div className="bento-card__media" style={motionModule ? undefined : fallbackStyle}>
+          {motionModule ? (
+            // Use the dynamically loaded motion.div for spring physics
+            (() => {
+              const MotionDiv = motionModule.motion.div
+              return (
+                <MotionDiv
+                  style={{ width: '100%', height: '100%' }}
+                  animate={{ x: transformStyle.x / 6, y: transformStyle.y / 6, rotateX: transformStyle.rx, rotateY: transformStyle.ry, scale: transformStyle.scale }}
+                  transition={{ type: 'spring', stiffness: 220, damping: 26 }}
+                >
+                  <img src={image} alt={title ?? 'Bento media'} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                </MotionDiv>
+              )
+            })()
           ) : (
             <img src={image} alt={title ?? 'Bento media'} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           )}

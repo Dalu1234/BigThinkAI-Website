@@ -20,11 +20,11 @@ export default function Navigation() {
       else scale = 1
       const s = String(scale)
       if (s !== lastScale) {
-        nav.setAttribute('data-scale', s)
+        nav!.setAttribute('data-scale', s)
         lastScale = s
       }
       const o = Math.min(0.95, 0.6 + y / 1000)
-      ;(nav.style as any).background = `rgba(255,255,255,${o})`
+      ;(nav!.style as any).background = `rgba(255,255,255,${o})`
     }
 
     updateScale()
@@ -56,6 +56,28 @@ export default function Navigation() {
       links.style.display = ''
       links.removeAttribute('id')
       toggle.focus()
+    }
+  }, [expanded])
+
+  // Close on Escape and click-outside to improve mobile accessibility / UX
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setExpanded(false)
+    }
+    function onDocClick(e: MouseEvent) {
+      const nav = navRef.current
+      if (!nav) return
+      const target = e.target as Node | null
+      if (expanded && target && !nav.contains(target)) setExpanded(false)
+    }
+
+    if (expanded) {
+      document.addEventListener('keydown', onKey)
+      document.addEventListener('click', onDocClick)
+    }
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.removeEventListener('click', onDocClick)
     }
   }, [expanded])
 
@@ -117,7 +139,7 @@ export default function Navigation() {
         ref={toggleRef}
         className="nav-toggle"
         aria-controls="main-menu"
-        aria-expanded={String(expanded)}
+        aria-expanded={expanded}
         aria-label={expanded ? 'Close menu' : 'Open menu'}
         onClick={() => setExpanded((s: boolean) => !s)}
       >
