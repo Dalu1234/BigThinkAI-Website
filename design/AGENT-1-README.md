@@ -25,3 +25,11 @@ Next steps
 
 - If you want, I can push this branch to GitHub and open a PR with a Vercel preview request. I'll need write access or a repository to push to.
 - Optionally, we can wire the demo into a Next page (`/design/tokens`) for an integrated preview.
+
+---
+
+## Status
+- This work has been pushed to the repository `SakshamKapoor2911/BigThinkAI-Website` and merged into `master`.
+- The temporary branch `agent/1-tokens` has been deleted (local and remote). The tokens and demo are available on `master`.
+
+**Preview**: open `public/token-demo/index.html` from the repo or run a static server (e.g., `npx http-server public`) to view the interactive demo.
