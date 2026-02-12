@@ -1,4 +1,44 @@
 import Navigation from '../components/Navigation'
+import Carousel from '../components/Carousel'
+
+interface FeatureCard {
+  title: string;
+  subtitle: string;
+  description: string;
+  icon: string;
+  color: string;
+}
+
+const features: FeatureCard[] = [
+  {
+    title: 'EDGE Projects',
+    subtitle: 'Applied Machine Learning',
+    description: 'Multi-quarter, team-led projects exploring real-world ML applications. From autonomous data labeling to campus dashboards, build practical systems and ship real impact.',
+    icon: '🚀',
+    color: 'from-blue-500/20',
+  },
+  {
+    title: 'Pyoneer Workshops',
+    subtitle: 'Hands-on ML Curriculum',
+    description: 'Beginner to advanced Python and ML workshops. Weekly hands-on sessions with exercises, notebooks, and recorded sessions. Learn by building.',
+    icon: '🐍',
+    color: 'from-green-500/20',
+  },
+  {
+    title: 'Bitcamp Hackathon',
+    subtitle: 'Weekend Innovation Sprint',
+    description: 'Intensive 24-48 hour hackathons to prototype AI projects, collaborate across teams, and compete for mentorship prizes and recognition.',
+    icon: '⚡',
+    color: 'from-yellow-500/20',
+  },
+  {
+    title: 'Research Spotlight',
+    subtitle: 'Student-Led Exploration',
+    description: 'Peer-reviewed research groups diving deep into cutting-edge ML topics. Present your findings, publish papers, and contribute to the field.',
+    icon: '📚',
+    color: 'from-purple-500/20',
+  },
+];
 
 export default function Home() {
   return (
@@ -13,6 +53,31 @@ export default function Home() {
             <a className="btn-primary" href="#join">Join Us</a>
             <a className="btn-primary" href="#projects">See Projects</a>
           </div>
+        </section>
+
+        {/* Featured Initiatives Carousel */}
+        <section id="featured" className="py-12">
+          <h2 className="h2-serif mb-4">Featured Initiatives</h2>
+          <p className="kicker-small mb-8">Explore our core programs</p>
+          <Carousel
+            autoPlay={true}
+            autoPlayInterval={6000}
+            showIndicators={true}
+            showControls={true}
+          >
+            {features.map((feature) => (
+              <div
+                key={feature.title}
+                className={`w-full h-full flex flex-col items-center justify-center px-8 py-16 text-center bg-gradient-to-br ${feature.color} to-transparent rounded-2xl`}
+              >
+                <div className="text-6xl mb-4">{feature.icon}</div>
+                <h3 className="text-4xl font-serif font-bold mb-2">{feature.title}</h3>
+                <p className="text-lg font-medium text-primary mb-4">{feature.subtitle}</p>
+                <p className="text-base text-muted max-w-md leading-relaxed">{feature.description}</p>
+                <button className="btn-primary mt-6">Learn More</button>
+              </div>
+            ))}
+          </Carousel>
         </section>
 
         <section id="projects" className="py-12">
