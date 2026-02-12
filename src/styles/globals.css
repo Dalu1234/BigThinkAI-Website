@@ -1,0 +1,196 @@
+/* Global CSS tokens for BigThinkAI — Agent 1 */
+:root {
+  /* Core palette */
+  --color-background: #FBFBFB;
+  --color-foreground: #1A1A1A;
+  --color-primary: #2563EB; /* refined blue */
+  --color-primary-rgb: 37, 99, 235; /* for shadows */
+  --color-card: #FFFFFF;
+  --color-muted: #F5F5F5;
+  --color-border: #E6E6E6;
+
+  /* Semantic / ink shades */
+  --color-destructive: #BE123C;
+  --color-warning: #B45309;
+  --color-success: #047857;
+
+  /* Text and UI scale */
+  --radius-bento: 0.9rem;
+  --film-grain-opacity: 0.035;
+  --dot-grid-size: 10px;
+}
+
+/* Dark / Inverted Theme (optional) */
+[data-theme='dark'] {
+  --color-background: #0B0B0B;
+  --color-foreground: #F5F5F5;
+  --color-card: #0F1724;
+  --color-muted: #0B1220;
+  --color-border: rgba(255,255,255,0.06);
+}
+
+/* Base layout */
+html, body {
+  height: 100%;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  /* Primary UI font — populated by next/font via the CSS variable --font-sans */
+  font-family: var(--font-sans, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Explicit font utilities for component-level control */
+.font-sans { font-family: var(--font-sans, system-ui, -apple-system, 'Segoe UI', Robobo, 'Helvetica Neue', Arial); }
+.font-serif { font-family: var(--font-serif, Georgia, 'Times New Roman', serif); }
+.font-mono { font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace); }
+
+/* Dot grid background (subtle) */
+:root::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.015) 1px, transparent 1px);
+  background-size: var(--dot-grid-size) var(--dot-grid-size);
+  opacity: 0.7;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Film grain overlay */
+.film-grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="g"><feTurbulence baseFrequency="0.8" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23g)" opacity="0.04"/></svg>');
+  opacity: var(--film-grain-opacity);
+  pointer-events: none;
+}
+
+/* Token-based utilities & examples */
+.btn-primary {
+  background: var(--color-primary);
+  color: white;
+  padding: 0.625rem 1rem;
+  border-radius: var(--radius-bento);
+  box-shadow: 0 6px 18px rgba(var(--color-primary-rgb), 0.12), 0 1px 2px rgba(0,0,0,0.05);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--tw-shadow, 0 8px 26px rgba(var(--color-primary-rgb), 0.18));
+}
+
+.card {
+  background: var(--color-card);
+  border-radius: var(--radius-bento);
+  border: 1px solid var(--color-border);
+  padding: 1.25rem;
+  box-shadow: 0 4px 20px rgba(10, 10, 10, 0.04);
+}
+
+.kicker {
+  font-family: var(--font-serif, Georgia, 'Times New Roman', serif);
+  font-style: italic;
+  color: rgba(26,26,26,0.7);
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+}
+
+/* Typography utilities */
+.h1-serif {
+  font-family: var(--font-serif, Georgia, 'Times New Roman', serif);
+  font-size: 2.25rem;
+  line-height: 1.05;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.5rem;
+}
+.h2-serif {
+  font-family: var(--font-serif, Georgia, 'Times New Roman', serif);
+  font-size: 1.5rem;
+  line-height: 1.1;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+.lead {
+  font-size: 1.125rem;
+  color: rgba(26,26,26,0.78);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+.kicker-small {
+  font-family: var(--font-serif, Georgia, 'Times New Roman', serif);
+  font-style: italic;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  color: rgba(26,26,26,0.65);
+  text-transform: uppercase;
+}
+.code-sample {
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, monospace);
+  background: rgba(0,0,0,0.02);
+  padding: 0.35rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  display: inline-block;
+}
+
+/* Site navigation — Glassmorphism pill */
+.site-nav {
+  position: fixed;
+  left: 50%;
+  top: 24px;
+  transform: translateX(-50%) translateZ(0) scale(1);
+  display:flex;
+  gap:1rem;
+  align-items:center;
+  padding:0.45rem 1rem;
+  border-radius:9999px;
+  background: rgba(255,255,255,0.6);
+  border: 0.5px solid rgba(0,0,0,0.06);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  box-shadow: 0 6px 20px rgba(10,10,10,0.06);
+  z-index: 200;
+  transition: transform 220ms cubic-bezier(.2,.9,.2,1), background 220ms ease, box-shadow 220ms ease;
+  pointer-events:auto;
+  padding-inline:1rem;
+}
+/* smaller height on mobile */
+@media (max-width:640px) {
+  .site-nav { left: 16px; right: 16px; transform: none; top: 12px; justify-content:space-between; padding:0.5rem 0.75rem; }
+  .site-links { display:none; }
+  .nav-toggle { display:inline-flex; }
+}
+/* desktop links */
+.site-links {
+  display:flex; gap:0.75rem; list-style:none; margin:0; padding:0; align-items:center;
+}
+.site-links a {
+  color: var(--color-foreground); text-decoration:none; padding:0.4rem 0.6rem; border-radius:0.5rem; font-weight:600; font-size:0.95rem;
+}
+.site-links a:focus, .site-links a:focus-visible {
+  outline:3px solid rgba(var(--color-primary-rgb),0.18); outline-offset:3px;
+}
+/* brand */
+.brand { font-weight:700; color:var(--color-foreground); text-decoration:none; padding:0 0.25rem; font-size:1rem; }
+/* toggle */
+.nav-toggle { background:transparent; border:0; padding:0.35rem; display:none; align-items:center; justify-content:center; border-radius:8px; cursor:pointer; }
+.nav-toggle .hamburger { width:18px; height:2px; background:var(--color-foreground); position:relative; display:block; }
+.nav-toggle .hamburger::before, .nav-toggle .hamburger::after { content:''; position:absolute; left:0; right:0; height:2px; background:var(--color-foreground); }
+.nav-toggle .hamburger::before { top:-6px; }
+.nav-toggle .hamburger::after { top:6px; }
+
+/* scrolled modifiers (scaling) */
+.site-nav[data-scale="0.96"] { transform: translateX(-50%) scale(0.96); box-shadow: 0 6px 18px rgba(10,10,10,0.06); }
+.site-nav[data-scale="0.94"] { transform: translateX(-50%) scale(0.94); box-shadow: 0 8px 26px rgba(10,10,10,0.08); }
+
+/* accessible focus ring for toggle */
+.nav-toggle:focus-visible { outline: 3px solid rgba(var(--color-primary-rgb),0.18); outline-offset:3px; }
+
+/* Accessibility: prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary, * { transition: none !important; animation: none !important; }
+  .site-nav { transition: none !important; }
+} 

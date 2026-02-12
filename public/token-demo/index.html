@@ -1,0 +1,224 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>BigThinkAI — Token Demo</title>
+    <link rel="stylesheet" href="/src/styles/globals.css">
+    <style>
+      body { display:flex; align-items:center; justify-content:center; padding:3rem; }
+      .demo { width:760px; display:grid; grid-template-columns: 1fr 260px; gap:1rem; }
+      .panel { background: var(--color-card); border-radius: 12px; padding:1rem; border:1px solid var(--color-border); }
+      .side { position:relative }
+      .swatch { height:40px; border-radius:8px; }
+      .meta { font-size:0.85rem; color:rgba(26,26,26,0.7); margin-top:0.5rem }
+    </style>
+  </head>
+  <body class="film-grain">
+    <nav class="site-nav" role="navigation" aria-label="Main navigation">
+      <a class="brand" href="#" aria-label="BigThinkAI Home">BigThinkAI</a>
+      <ul class="site-links" role="menubar">
+        <li role="none"><a role="menuitem" href="#projects">Projects</a></li>
+        <li role="none"><a role="menuitem" href="#workshops">Workshops</a></li>
+        <li role="none"><a role="menuitem" href="#events">Events</a></li>
+        <li role="none"><a role="menuitem" href="#join">Join</a></li>
+      </ul>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="main-menu" aria-label="Open menu">
+        <span class="hamburger" aria-hidden="true"></span>
+      </button>
+    </nav>
+    <div class="demo">
+      <div class="panel">
+        <p class="kicker">Design Tokens</p>
+        <h2 style="margin:0.25rem 0 1rem 0;">Primary & Components</h2>
+        <div style="display:flex; gap:0.75rem; align-items:center;">
+          <button class="btn-primary">Primary Button</button>
+          <div style="flex:1">
+            <div class="card" style="margin-bottom:0.75rem">Card example — clean surface with subtle border.</div>
+            <div class="card">Another card with <span style="color:var(--color-primary)">primary text</span>.</div>
+          </div>
+        </div>
+        <h3 style="margin-top:1rem">Kicker</h3>
+        <p class="kicker">Newsreader Italic • Small kicker above headings</p>
+      </div>
+      <aside class="panel side">
+        <h4 style="margin-top:0">Theme Controls</h4>
+        <div style="margin-top:0.5rem">
+          <label>Primary preset</label>
+          <select id="primarySelect" style="width:100%; padding:0.5rem; margin-top:0.5rem">
+            <option value="#2563EB">Refined Blue — #2563EB</option>
+            <option value="#0055FF">IKB — #0055FF</option>
+            <option value="#3B82F6">Tailwind Blue — #3B82F6</option>
+          </select>
+          <div class="meta">Change primary color to preview button & shadow.</div>
+        </div>
+
+        <div style="margin-top:1rem">
+          <label>Toggle Theme</label>
+          <div style="margin-top:0.5rem"><button id="toggleTheme" style="padding:0.5rem; width:100%">Toggle Dark</button></div>
+          <div class="meta">This toggles `[data-theme="dark"]` on the <code>html</code> element.</div>
+        </div>
+
+        <div style="margin-top:1rem">
+          <label>Demo Swatch</label>
+          <div id="swatch" class="swatch" style="background:var(--color-primary)"></div>
+          <div class="meta" id="swatchMeta">--color-primary: <strong id="colorVal">#2563EB</strong></div>
+        </div>
+      </aside>
+    </div>
+
+    <script>
+      const sel = document.getElementById('primarySelect')
+      const swatch = document.getElementById('swatch')
+      const colorVal = document.getElementById('colorVal')
+      sel.addEventListener('change', (e) => {
+        const val = e.target.value
+        document.documentElement.style.setProperty('--color-primary', val)
+        // update rgb helper
+        const rgb = hexToRgb(val)
+        document.documentElement.style.setProperty('--color-primary-rgb', rgb.join(', '))
+        swatch.style.background = val
+        colorVal.textContent = val
+      })
+
+      document.getElementById('toggleTheme').addEventListener('click', () => {
+        const html = document.documentElement
+        if (html.getAttribute('data-theme') === 'dark') html.removeAttribute('data-theme')
+        else html.setAttribute('data-theme', 'dark')
+      })
+
+      function hexToRgb(hex) {
+        const h = hex.replace('#','')
+        return [parseInt(h.substring(0,2),16), parseInt(h.substring(2,4),16), parseInt(h.substring(4,6),16)]
+      }
+
+      /* ----------------------------- */
+      /* Navigation behavior & tests  */
+      /* ----------------------------- */
+      (function(){
+        const nav = document.querySelector('.site-nav')
+        const toggle = document.querySelector('.nav-toggle')
+        const links = document.querySelector('.site-links')
+
+        if (!nav) return
+
+        // Scroll scaling logic
+        let lastScale = '1'
+        function updateScale() {
+          if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+          const y = window.scrollY || document.documentElement.scrollTop
+          let scale = 1
+          if (y > 400) scale = 0.94
+          else if (y > 100) scale = 0.96
+          else scale = 1
+          const s = String(scale)
+          if (s !== lastScale) {
+            nav.setAttribute('data-scale', s)
+            lastScale = s
+          }
+          const o = Math.min(0.95, 0.6 + y / 1000)
+          nav.style.background = `rgba(255,255,255,${o})`
+        }
+        updateScale()
+        window.addEventListener('scroll', () => { requestAnimationFrame(updateScale) })
+
+        // Mobile toggle
+        toggle.addEventListener('click', () => {
+          const expanded = toggle.getAttribute('aria-expanded') === 'true'
+          toggle.setAttribute('aria-expanded', String(!expanded))
+          if (!expanded) {
+            links.style.display = 'flex'
+            links.style.flexDirection = 'column'
+            links.style.position = 'absolute'
+            links.style.top = '56px'
+            links.style.right = '16px'
+            links.style.background = 'var(--color-card)'
+            links.style.padding = '0.5rem'
+            links.style.borderRadius = '12px'
+            links.style.boxShadow = '0 12px 32px rgba(10,10,10,0.08)'
+            links.setAttribute('id','main-menu')
+            toggle.setAttribute('aria-controls','main-menu')
+            // move focus into menu for accessibility
+            const first = links.querySelector('a')
+            if (first) first.focus()
+          } else {
+            links.style.display = ''
+            links.removeAttribute('id')
+            toggle.focus()
+          }
+        })
+
+        // Close menu on Escape
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            if (toggle.getAttribute('aria-expanded') === 'true') {
+              toggle.click()
+            }
+          }
+        })
+
+        // Smoke test runner inserted into control panel
+        const panel = document.querySelector('.panel.side')
+        if (panel) {
+          const container = document.createElement('div')
+          container.style.marginTop = '1rem'
+          container.innerHTML = '<label>Nav Smoke Tests</label><div style="margin-top:0.5rem"><button id="runNavTests" style="padding:0.5rem; width:100%">Run Nav Smoke Tests</button></div><div id="nav-test-report" style="font-size:0.9rem;margin-top:0.5rem;color:rgba(26,26,26,0.75)"></div>'
+          panel.appendChild(container)
+          document.getElementById('runNavTests').addEventListener('click', runNavTests)
+        }
+
+        function doAssert(condition, msg) {
+          return {ok: !!condition, msg}
+        }
+
+        async function runNavTests() {
+          const results = []
+          results.push(doAssert(!!nav, 'Navigation exists'))
+          results.push(doAssert(nav.getAttribute('role') === 'navigation', 'Nav role set'))
+          results.push(doAssert(!!nav.getAttribute('aria-label'), 'Nav has aria-label'))
+          results.push(doAssert(!!toggle && toggle.getAttribute('aria-expanded') === 'false', 'Toggle button present and collapsed'))
+
+          // Toggle functionality
+          toggle.click()
+          await new Promise(r => setTimeout(r, 220))
+          results.push(doAssert(toggle.getAttribute('aria-expanded') === 'true', 'Toggle expands menu'))
+          toggle.click()
+          await new Promise(r => setTimeout(r, 120))
+          results.push(doAssert(toggle.getAttribute('aria-expanded') === 'false', 'Toggle collapses menu'))
+
+          // Scroll tests (programmatic)
+          window.scrollTo(0, 140)
+          window.dispatchEvent(new Event('scroll'))
+          await new Promise(r => setTimeout(r, 120))
+          results.push(doAssert(nav.getAttribute('data-scale') === '0.96', 'Scroll -> minor scale (0.96)'))
+
+          window.scrollTo(0, 600)
+          window.dispatchEvent(new Event('scroll'))
+          await new Promise(r => setTimeout(r, 120))
+          results.push(doAssert(nav.getAttribute('data-scale') === '0.94', 'Scroll -> deep scale (0.94)'))
+
+          // Keyboard focus test
+          const firstLink = nav.querySelector('.site-links a')
+          if (firstLink) {
+            firstLink.focus()
+            results.push(doAssert(document.activeElement === firstLink, 'First link is focusable via keyboard'))
+          } else {
+            results.push(doAssert(false, 'No nav links to focus'))
+          }
+
+          // Summarize
+          const report = document.getElementById('nav-test-report')
+          if (report) {
+            report.innerHTML = results.map(r => `${r.ok ? '✅' : '❌'} ${r.msg}`).join('<br>')
+          } else {
+            console.log('Nav test results:', results)
+          }
+          // reset scroll
+          window.scrollTo(0,0)
+          window.dispatchEvent(new Event('scroll'))
+        }
+
+      })()
+    </script>
+  </body>
+</html>
