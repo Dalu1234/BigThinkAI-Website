@@ -81,49 +81,6 @@ export default function Navigation() {
     }
   }, [expanded])
 
-  function runNavSmokeTests(reportEl?: HTMLElement | null) {
-    const nav = navRef.current
-    const toggle = toggleRef.current
-    const links = linksRef.current
-    const results: Array<{ ok: boolean; msg: string }> = []
-    if (!nav) {
-      results.push({ ok: false, msg: 'Navigation not found' })
-    } else {
-      results.push({ ok: nav.getAttribute('role') === 'navigation', msg: 'Nav role set' })
-      results.push({ ok: !!nav.getAttribute('aria-label'), msg: 'Nav has aria-label' })
-    }
-    results.push({ ok: !!toggle && toggle.getAttribute('aria-expanded') === 'false', msg: 'Toggle present and collapsed' })
-
-    // Toggle functionality
-    if (toggle) {
-      toggle.click()
-      results.push({ ok: toggle.getAttribute('aria-expanded') === 'true', msg: 'Toggle expands menu' })
-      toggle.click()
-      results.push({ ok: toggle.getAttribute('aria-expanded') === 'false', msg: 'Toggle collapses menu' })
-    }
-
-    // Scroll tests
-    window.scrollTo(0, 140)
-    window.dispatchEvent(new Event('scroll'))
-    results.push({ ok: nav?.getAttribute('data-scale') === '0.96', msg: 'Scroll -> minor scale (0.96)' })
-    window.scrollTo(0, 600)
-    window.dispatchEvent(new Event('scroll'))
-    results.push({ ok: nav?.getAttribute('data-scale') === '0.94', msg: 'Scroll -> deep scale (0.94)' })
-
-    const firstLink = nav?.querySelector('.site-links a') as HTMLElement | null
-    if (firstLink) {
-      firstLink.focus()
-      results.push({ ok: document.activeElement === firstLink, msg: 'First link is focusable via keyboard' })
-    } else {
-      results.push({ ok: false, msg: 'No nav links to focus' })
-    }
-
-    if (reportEl) reportEl.innerHTML = results.map(r => `${r.ok ? '✅' : '❌'} ${r.msg}`).join('<br>')
-    // reset scroll
-    window.scrollTo(0, 0)
-    window.dispatchEvent(new Event('scroll'))
-  }
-
   return (
     <nav ref={navRef} className="site-nav" role="navigation" aria-label="Main navigation">
       <a className="brand" href="#hero" aria-label="BigThinkAI Home">BigThinkAI</a>
