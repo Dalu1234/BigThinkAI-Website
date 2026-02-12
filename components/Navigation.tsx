@@ -109,6 +109,7 @@ export default function Navigation() {
         <li role="none"><a role="menuitem" href="#projects">Projects</a></li>
         <li role="none"><a role="menuitem" href="#workshops">Workshops</a></li>
         <li role="none"><a role="menuitem" href="#events">Events</a></li>
+        <li role="none"><a role="menuitem" href="/bento">Bento</a></li>
         <li role="none"><a role="menuitem" href="#about">About</a></li>
         <li role="none"><a role="menuitem" href="#join">Join</a></li>
       </ul>
@@ -119,7 +120,7 @@ export default function Navigation() {
         aria-controls="main-menu"
         aria-expanded={String(expanded)}
         aria-label={expanded ? 'Close menu' : 'Open menu'}
-        onClick={() => setExpanded((s) => !s)}
+        onClick={() => setExpanded((s: boolean) => !s)}
       >
         <span className="hamburger" aria-hidden="true"></span>
       </button>

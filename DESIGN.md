@@ -177,7 +177,7 @@ These tasks are intentionally parallelizable. Create a branch per agent (e.g., `
    - Build `BentoCard` component (shadows, inset rim, carved edge) and magnetic cursor tracking with Framer Motion.
    - Provide variants for content, gallery, and featured states.
    - Acceptance: interactive demo page with motion settings and perf budget.
-   - **Status (Agent 4):** **not started** — no `BentoCard` component or Framer Motion integration detected in the workspace.
+   - **Status (Agent 4):** **implemented in workspace** — added `components/BentoCard.tsx`, styles in `src/styles/globals.css`, and demo at `pages/bento.tsx`. Framer Motion is used when installed; the component falls back gracefully if it is not present.
 
 5. **Agent 5 — Featured Projects Carousel & Content**
    - Implement responsive carousel (EDGE, Pyoneer, Bitcamp, Research) with content schema (static JSON or headless CMS).
