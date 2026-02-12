@@ -85,11 +85,11 @@ export default function Navigation() {
     <nav ref={navRef} className="site-nav" role="navigation" aria-label="Main navigation">
       <a className="brand" href="#hero" aria-label="BigThinkAI Home">BigThinkAI</a>
       <ul ref={linksRef} className="site-links" role="menubar">
-        <li role="none"><a role="menuitem" href="#projects">Projects</a></li>
-        <li role="none"><a role="menuitem" href="#workshops">Workshops</a></li>
-        <li role="none"><a role="menuitem" href="#events">Events</a></li>
-        <li role="none"><a role="menuitem" href="#about">About</a></li>
-        <li role="none"><a role="menuitem" href="#join">Join</a></li>
+        <li role="none"><a role="menuitem" href="/#projects">Projects</a></li>
+        <li role="none"><a role="menuitem" href="/#workshops">Workshops</a></li>
+        <li role="none"><a role="menuitem" href="/roadmap">AI + X Roadmap</a></li>
+        <li role="none"><a role="menuitem" href="/#about">About</a></li>
+        <li role="none"><a role="menuitem" href="/#join">Join</a></li>
       </ul>
 
       <button
