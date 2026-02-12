@@ -171,7 +171,7 @@ These tasks are intentionally parallelizable. Create a branch per agent (e.g., `
    - Implement pill-shaped floating nav with `backdrop-filter`, subtle border, and scroll scaling (0.96 / 0.94).
    - Ensure keyboard accessibility and mobile adaptation.
    - Acceptance: accessible header with animations and unit/smoke tests.
-   - **Status (Agent 3):** **in progress** — navigation component added at `components/Navigation.tsx` and a single-page site scaffolded at `pages/index.tsx` (includes a nav smoke-test control); next steps: add unit tests, refine mobile interactions, and open branch `agent/3-navigation` for review.
+   - **Status (Agent 3):** **completed in workspace** — navigation component implemented at `components/Navigation.tsx` and integrated in `pages/index.tsx`. Added accessibility and mobile refinements (Escape-to-close, click-outside close), and **unit tests** at `components/__tests__/Navigation.test.tsx`. Branch `agent/3-navigation` is ready for review and PR.
 
 4. **Agent 4 — Bento Cards & Motion**
    - Build `BentoCard` component (shadows, inset rim, carved edge) and magnetic cursor tracking with Framer Motion.
