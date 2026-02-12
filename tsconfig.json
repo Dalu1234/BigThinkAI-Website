@@ -2,7 +2,11 @@
   "compilerOptions": {
     "target": "ES2020",
     "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "module": "ESNext",
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -23,13 +27,31 @@
     "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@components/*": ["components/*"],
-      "@pages/*": ["pages/*"]
+      "@/*": [
+        "src/*"
+      ],
+      "@components/*": [
+        "components/*"
+      ],
+      "@pages/*": [
+        "pages/*"
+      ]
     },
     "incremental": true,
-    "noEmit": true
+    "noEmit": true,
+    "allowJs": true,
+    "isolatedModules": true,
+    "types": ["jest", "@testing-library/jest-dom"]
   },
-  "include": ["**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", ".next", "dist", "build", "**/*.spec.ts", "**/*.test.ts"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    ".next",
+    "dist",
+    "build"
+  ]
 }
