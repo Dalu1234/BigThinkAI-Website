@@ -146,23 +146,6 @@ export default function Navigation() {
         <span className="hamburger" aria-hidden="true"></span>
       </button>
 
-      {/* Smoke test control for agent/development use */}
-      <div style={{ display: 'none' }} aria-hidden>
-        {/* Kept hidden by default; tests can call runNavSmokeTests and provide an element to show results */}
-      </div>
-
-      <div style={{ position: 'absolute', right: 12, top: '100%' }}>
-        {/* Visible only on the index page via an element with id "nav-test-report" (set by the page) */}
-        <button
-          onClick={() => {
-            const out = document.getElementById('nav-test-report')
-            runNavSmokeTests(out)
-          }}
-          style={{ display: 'inline-block', padding: '6px 10px', borderRadius: 8, background: 'transparent', border: 0, fontSize: 12, cursor: 'pointer' }}
-        >
-          Run Nav Smoke Tests
-        </button>
-      </div>
     </nav>
   )
 }
