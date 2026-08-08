@@ -7,11 +7,30 @@ interface BentoCardProps {
   title?: string
   subtitle?: string
   image?: string
+  /**
+   * Overrides the intensity of the magnetic transform. Used by the `/bento` demo.
+   * If undefined, defaults to 18.
+   */
+  intensity?: number
+  /**
+   * Forces reduced-motion behavior (useful for demos/tests).
+   * If undefined, uses the user's `prefers-reduced-motion` setting.
+   */
+  reducedMotion?: boolean
   children?: React.ReactNode
   className?: string
 }
 
-export default function BentoCard({ variant = 'content', title, subtitle, image, children, className = '' }: BentoCardProps) {
+export default function BentoCard({
+  variant = 'content',
+  title,
+  subtitle,
+  image,
+  intensity = 18,
+  reducedMotion,
+  children,
+  className = '',
+}: BentoCardProps) {
   const ref = useRef<HTMLDivElement | null>(null)
   const animRef = useRef<number | null>(null)
   const [motionModule, setMotionModule] = useState<any>(null)
@@ -40,9 +59,10 @@ export default function BentoCard({ variant = 'content', title, subtitle, image,
     const el = ref.current
     if (!el) return
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const isReduced =
+      typeof reducedMotion === 'boolean' ? reducedMotion : window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (isReduced) return
 
-    let intensity = 18
     const elNode = el
     function onPointerMove(e: PointerEvent) {
       const rect = elNode!.getBoundingClientRect()
@@ -80,7 +100,7 @@ export default function BentoCard({ variant = 'content', title, subtitle, image,
       el.removeEventListener('pointerleave', onLeave)
       el.removeEventListener('pointercancel', onLeave)
     }
-  }, [])
+  }, [intensity, reducedMotion])
 
   const dataMag = motionModule ? 'true' : 'false' // hint if advanced motion is available
 
