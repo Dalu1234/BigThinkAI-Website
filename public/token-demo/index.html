@@ -209,7 +209,7 @@
           // Summarize
           const report = document.getElementById('nav-test-report')
           if (report) {
-            report.innerHTML = results.map(r => `${r.ok ? '✅' : '❌'} ${r.msg}`).join('<br>')
+            report.innerHTML = results.map(r => `${r.ok ? 'Pass' : 'Fail'}: ${r.msg}`).join('<br>')
           } else {
             console.log('Nav test results:', results)
           }

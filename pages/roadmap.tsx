@@ -1,5 +1,4 @@
 import Navigation from '../components/Navigation'
-import Link from 'next/link'
 
 /* ── AI + X domain data ── */
 const roadmapData = [
@@ -8,7 +7,6 @@ const roadmapData = [
     title: 'AI + Psychology',
     color: '#8B5CF6',
     colorLight: 'rgba(139, 92, 246, 0.08)',
-    icon: '🧠',
     description: 'Cognitive modeling, sentiment analysis, behavioral prediction & therapeutic AI assistants.',
     children: [
       'Sentiment & Emotion Detection',
@@ -22,7 +20,6 @@ const roadmapData = [
     title: 'AI + Finance',
     color: '#059669',
     colorLight: 'rgba(5, 150, 105, 0.08)',
-    icon: '💹',
     description: 'Algorithmic trading, fraud detection, credit scoring & financial forecasting models.',
     children: [
       'Algorithmic & Quant Trading',
@@ -36,7 +33,6 @@ const roadmapData = [
     title: 'AI + Healthcare',
     color: '#DC2626',
     colorLight: 'rgba(220, 38, 38, 0.08)',
-    icon: '🏥',
     description: 'Medical imaging, drug discovery, clinical NLP & patient outcome prediction.',
     children: [
       'Medical Image Diagnostics',
@@ -50,7 +46,6 @@ const roadmapData = [
     title: 'AI + Education',
     color: '#2563EB',
     colorLight: 'rgba(37, 99, 235, 0.08)',
-    icon: '🎓',
     description: 'Adaptive learning, intelligent tutoring, automated grading & curriculum design.',
     children: [
       'Adaptive Learning Platforms',
@@ -64,7 +59,6 @@ const roadmapData = [
     title: 'AI + Law',
     color: '#B45309',
     colorLight: 'rgba(180, 83, 9, 0.08)',
-    icon: '⚖️',
     description: 'Legal document analysis, contract review, case prediction & regulatory compliance.',
     children: [
       'Legal Document Summarization',
@@ -78,7 +72,6 @@ const roadmapData = [
     title: 'AI + Climate',
     color: '#0D9488',
     colorLight: 'rgba(13, 148, 136, 0.08)',
-    icon: '🌍',
     description: 'Climate modeling, carbon tracking, energy optimization & environmental monitoring.',
     children: [
       'Climate & Weather Modeling',
@@ -92,7 +85,6 @@ const roadmapData = [
     title: 'AI + Creativity',
     color: '#DB2777',
     colorLight: 'rgba(219, 39, 119, 0.08)',
-    icon: '🎨',
     description: 'Generative art, music composition, creative writing & design co-pilots.',
     children: [
       'Generative Art & Design',
@@ -106,7 +98,6 @@ const roadmapData = [
     title: 'AI + Robotics',
     color: '#6366F1',
     colorLight: 'rgba(99, 102, 241, 0.08)',
-    icon: '🤖',
     description: 'Autonomous navigation, manipulation, human-robot interaction & sim-to-real transfer.',
     children: [
       'Autonomous Navigation',
@@ -125,9 +116,6 @@ export default function RoadmapPage() {
       <main className="roadmap-main">
         {/* ── Hero ── */}
         <section className="roadmap-hero">
-          <Link href="/" className="roadmap-back-link">
-            ← Back to Home
-          </Link>
           <p className="kicker-small">Explore Intersections</p>
           <h1 className="roadmap-hero-title">AI + X Roadmap</h1>
           <p className="roadmap-hero-lead">
@@ -158,7 +146,6 @@ export default function RoadmapPage() {
 
           {/* Central label */}
           <div className="roadmap-root-node">
-            <span className="roadmap-root-node__icon">⚡</span>
             <span className="roadmap-root-node__label">Artificial Intelligence</span>
           </div>
 
@@ -177,12 +164,10 @@ export default function RoadmapPage() {
 
                   {/* Domain card */}
                   <div className="roadmap-domain-card" tabIndex={0}>
-                    <span className="roadmap-domain-card__icon">{domain.icon}</span>
                     <div className="roadmap-domain-card__text">
                       <h3 className="roadmap-domain-card__title">{domain.title}</h3>
                       <p className="roadmap-domain-card__desc">{domain.description}</p>
                     </div>
-                    <span className="roadmap-domain-card__badge">{domain.children.length} topics</span>
                   </div>
 
                   {/* Sub-topic nodes */}
@@ -201,7 +186,6 @@ export default function RoadmapPage() {
 
           {/* Bottom cap */}
           <div className="roadmap-cap">
-            <span className="roadmap-cap__icon">🔮</span>
             <span className="roadmap-cap__label">The future is interdisciplinary</span>
           </div>
         </section>
