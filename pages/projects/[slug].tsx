@@ -21,9 +21,11 @@ import {
 import { longDate, daysAway, countdownLabel } from '../../src/lib/dates'
 
 /* One page per EDGE team, generated at build time from PROJECTS.
-   The shell is shared; the personality is not — `data-team` swaps the
-   accent and the chrome, and ProjectMotif puts the team's own ambient
-   layer behind the title. */
+
+   The page is built around the team's own artwork: the hero is that
+   picture, full bleed, graded to the palette taken out of it, with a
+   motif moving inside it that is registered to the picture's own pixel
+   space. `data-team` is the switch — it swaps the whole scene.      */
 
 type Props = { slug: string }
 
@@ -56,9 +58,26 @@ export default function ProjectPage({ slug }: Props) {
         <Navigation />
 
         <main>
-          {/* ════════ HERO — the team's own weather ════════ */}
+          {/* ════════ THE SCENE ════════
+              The artwork, full bleed, with the team's motif alive inside
+              it. The plate is sized to the art's exact aspect ratio so
+              the motif's coordinates land on the art. */}
           <header className="proj-hero">
-            <ProjectMotif theme={project.theme} />
+            <div className="scene">
+              <div className="scene__plate">
+                <Image
+                  className="scene__art"
+                  src={project.image}
+                  alt={project.imageAlt}
+                  fill
+                  sizes="100vw"
+                  priority
+                />
+                <div className="scene__grade" aria-hidden="true" />
+                <ProjectMotif theme={project.theme} />
+              </div>
+              <div className="scene__scrim" aria-hidden="true" />
+            </div>
 
             <div className="shell proj-hero__inner">
               <a className="proj-back" href="/projects">
@@ -104,9 +123,9 @@ export default function ProjectPage({ slug }: Props) {
               </div>
             </div>
 
-            {/* owns up to whatever is moving behind the title */}
+            {/* owns up to whatever is moving in the picture */}
             <p className="motif-note">
-              <span className="motif-note__key">On this page</span>
+              <span className="motif-note__key">In this scene</span>
               {project.motifNote}
             </p>
           </header>
@@ -122,18 +141,6 @@ export default function ProjectPage({ slug }: Props) {
 
               <div className="proj-grid">
                 <div className="proj-main">
-                  <div className="proj-art marks">
-                    <span className="marks-tr" aria-hidden="true" />
-                    <span className="marks-bl" aria-hidden="true" />
-                    <Image
-                      src={project.image}
-                      alt={project.imageAlt}
-                      fill
-                      sizes="(max-width: 980px) 100vw, 64vw"
-                      priority
-                    />
-                  </div>
-
                   <p className="proj-desc">{project.description}</p>
 
                   <div className="proj-goal">
@@ -228,11 +235,16 @@ export default function ProjectPage({ slug }: Props) {
               <div className="pager">
                 {prev && (
                   <a className="pager__link" data-team={prev.theme} href={`/projects/${prev.id}`}>
-                    <span className="pager__dir">
-                      <span aria-hidden="true">←</span> Previous
+                    <span className="pager__art" aria-hidden="true">
+                      <Image src={prev.image} alt="" fill sizes="(max-width: 620px) 100vw, 50vw" />
                     </span>
-                    <span className="pager__name">{prev.name}</span>
-                    <span className="pager__blurb">{prev.blurb}</span>
+                    <span className="pager__text">
+                      <span className="pager__dir">
+                        <span aria-hidden="true">←</span> Previous
+                      </span>
+                      <span className="pager__name">{prev.name}</span>
+                      <span className="pager__blurb">{prev.blurb}</span>
+                    </span>
                   </a>
                 )}
                 {next && (
@@ -241,11 +253,16 @@ export default function ProjectPage({ slug }: Props) {
                     data-team={next.theme}
                     href={`/projects/${next.id}`}
                   >
-                    <span className="pager__dir">
-                      Next <span aria-hidden="true">→</span>
+                    <span className="pager__art" aria-hidden="true">
+                      <Image src={next.image} alt="" fill sizes="(max-width: 620px) 100vw, 50vw" />
                     </span>
-                    <span className="pager__name">{next.name}</span>
-                    <span className="pager__blurb">{next.blurb}</span>
+                    <span className="pager__text">
+                      <span className="pager__dir">
+                        Next <span aria-hidden="true">→</span>
+                      </span>
+                      <span className="pager__name">{next.name}</span>
+                      <span className="pager__blurb">{next.blurb}</span>
+                    </span>
                   </a>
                 )}
               </div>

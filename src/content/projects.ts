@@ -79,7 +79,7 @@ export const PROJECTS: Project[] = [
     description:
       'Lanternflies are damaging Maryland’s vineyards and orchards, and right now people mostly rely on spotting and reporting them by hand. We’re building a system that can automatically find lanternflies, track where they’re spreading, and help predict where they’re likely to show up next.',
     motifNote:
-      'Lycorma delicatula. Yes, they are crawling on the page — that is the one we are looking for.',
+      'Lycorma delicatula. The swarm in the picture has not stopped moving, and the scarlet blooms are where a sighting spreads from.',
     skills: [
       'Object detection & computer vision',
       'Edge / on-device model deployment',
@@ -104,7 +104,7 @@ export const PROJECTS: Project[] = [
     description:
       'We’re building the first world model benchmark that measures with particle-level ground truth instead of a VLM’s opinion, to find out where world models stop being physics engines.',
     motifNote:
-      'Solid dots are ground truth. The hollow ones are a prediction drifting off it — that gap is the whole measurement.',
+      'Two orbits laid over the system in the painting: the solid body is ground truth, the hollow one is what a model predicted. Watch them come apart.',
     skills: [
       'Video & vision-language models',
       'World model evaluation',
@@ -130,7 +130,7 @@ export const PROJECTS: Project[] = [
     description:
       'We’re building audio agents that know when to speak, when to act, and when to stay quiet. Our team will compete in the HEARTBEAT ICASSP 2027 Challenge, training AI to understand live conversations and environmental sounds, then make the right decision at the right moment.',
     motifNote:
-      'A live input stream — including the flat stretches. Knowing those are silence is half the problem.',
+      'A reader running the length of the waveform in the picture, closing brackets around the stretches where it goes quiet.',
     skills: [
       'Audio & speech AI',
       'Audio event detection',
@@ -157,7 +157,7 @@ export const PROJECTS: Project[] = [
     description:
       'We’re building a local multimodal “Jarvis” that watches a physical assembly, understands what the user has completed, and guides them through each step. The assistant can identify parts, answer questions, track progress, and catch mistakes in real time — all while keeping the camera feed and AI processing on the user’s device.',
     motifNote:
-      'Roughly what the assistant sees: boxes locking onto parts, a frame at a time.',
+      'What the assistant sees. Every box is locked onto something actually in this workshop — the arm, the housing, the gears on the bench.',
     skills: [
       'Multimodal AI / Vision-Language Models (VLMs)',
       'Local LLM & VLM deployment',
@@ -183,7 +183,7 @@ export const PROJECTS: Project[] = [
     description:
       'We’re building an AI academic advisor that turns UMD’s scattered course requirements, prerequisites, and catalog information into one conversational planning tool. Students can ask what courses they’re eligible for, understand prerequisite chains, and build multi-semester schedules, with RAG grounding responses in official UMD information rather than relying on an LLM’s memory.',
     motifNote:
-      'A prerequisite chain resolving, one node at a time. This is the shape of the problem.',
+      'A prerequisite chain routed across the mall, resolving toward McKeldin. Every stop sits on a real path in the picture.',
     skills: [
       'Retrieval-Augmented Generation (RAG)',
       'LLM prompting & response generation',

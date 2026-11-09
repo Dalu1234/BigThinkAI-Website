@@ -39,7 +39,9 @@ Site copy lives in two editable modules — **edit these, not the components**:
 - [`src/content/projects.ts`](src/content/projects.ts) — the EDGE teams: descriptions,
   skill levels, skills taught, goals, and each team's `theme`
 
-Project artwork in `public/projects/` is exported from the intro deck.
+Project artwork in `public/projects/` is exported from the intro deck — all five
+at 1400×787. It is not decoration: each team page is built around its own piece,
+and the per-team palettes are sampled out of them. See **Team pages** below.
 
 ### Adding an event
 
@@ -86,37 +88,64 @@ flattening it to a tidy label. Reorder the array to reorder the site.
 
 Every team has its own page, generated at build time from `PROJECTS` by
 [`pages/projects/[slug].tsx`](pages/projects/%5Bslug%5D.tsx), plus a flat index at
-`/projects`. The shell is shared. The personality is not.
+`/projects`. The shell is shared. The world is not.
 
-One field does it: **`theme`**. It sets the page's accent and chrome through a
-`data-team` attribute, and it picks the ambient motif that runs behind the title.
+Each page is **built out of that team's artwork**. The hero is the picture, full
+bleed, graded to a palette sampled from the picture itself, with a motif alive
+inside it. One field drives all of it: **`theme`**, which sets a `data-team`
+attribute on the page.
 
-| Theme | Accent | What moves behind the title |
+| Theme | Palette, taken from the art | What is alive in the picture |
 |---|---|---|
-| `lantern` | violet `#C77DFF` | Spotted lanternflies crawling the page; a few flash their scarlet hindwings |
-| `worldmodel` | cyan `#5FD3E8` | Particles on a perspective grid — a solid ground-truth dot and the hollow prediction drifting off it |
-| `heartbeat` | mint `#2BE3B0` | A live input stream scrolling past a read head, flat stretches and all, with a level meter |
-| `jarvis` | gold `#FFB03A` | A HUD: scanline, boxes locking onto parts, a drifting reticle |
-| `advisor` | red `#F2545B` | A prerequisite graph resolving, a pulse down each edge lighting the node it reaches |
+| `lantern` | scarlet `#FF4133` + teal `#4ACBDA` | The swarm keeps moving — live lanternflies crawl across the painted ones in the same teal, flash the scarlet hindwings of the lit one, and scarlet blooms open where a sighting spreads |
+| `worldmodel` | sun `#F0CF9B` + deep blue `#7FB0D8` | Two orbits laid over the system in the painting, centred on its sun and matched to its tilt: a solid body on the true one, a hollow one on the prediction, turning at different rates so they come apart |
+| `heartbeat` | coral `#F5452B` + powder blue `#8FAEE4` | A reader sweeps the waveform that is already in the poster, and brackets close around the two stretches where it actually goes quiet |
+| `jarvis` | brass `#EDB869` + indigo `#6E89C8` | The assistant's own view: every box is locked onto a real object in that workshop — the arm, the housing, the stock, the gears — with a scanline and a reticle working the room |
+| `advisor` | brick `#DC6655` + olive `#CBBE7E` | A prerequisite chain routed across the mall toward McKeldin. Every stop sits on a real walkway, bench or step in the painting |
 
-Skill level keeps its own colour (`--lvl`) independently of the page accent, on
+Skill level keeps its own colour (`--lvl`) independently of the page palette, on
 every page — the level means something, so it stays a traffic light everywhere.
+
+**How a motif stays registered to the art.** All five pieces of deck art are
+1400×787. `.scene__plate` is sized to exactly that aspect ratio and scaled to
+cover the hero, by hand in `cqw`/`cqh` rather than with `object-fit`, because the
+motif lives inside the plate and has to move with it. A motif can then draw in an
+SVG with `viewBox="0 0 1400 787"` — the artwork's own pixel space — and its
+coordinates land on whatever it is pointing at.
+
+Per-team framing knobs, all set beside the palette:
+
+| Token | Does |
+|---|---|
+| `--scene-x` / `--scene-y` | Where the plate is anchored, so the right part of the art is in frame |
+| `--scene-zoom` | Pushes in past cover, which frees up room to re-frame |
+| `--scene-lift` | Exposure on the art itself |
+| `--scrim-far` | How hard the far side is held back from the copy |
+| `--scrim-floor` | How hard the bottom edge goes down into the next section |
 
 **Adding or changing a motif:**
 
 1. Add the name to `ProjectTheme` in `projects.ts` and set it on the team.
-2. Add `[data-team='yourtheme'] { --accent: …; --accent-rgb: …; }` near the top of
-   the *EDGE TEAM PAGES* block in `globals.css`.
+2. Add `[data-team='yourtheme'] { --accent: …; --accent-2: …; }` and the framing
+   tokens near the top of the *EDGE TEAM PAGES* block in `globals.css`. Sample the
+   colours out of the artwork rather than picking them — that is why the pages
+   look like their pictures.
 3. Add a branch to `ProjectMotif` in
    [`components/projects/ProjectMotif.tsx`](components/projects/ProjectMotif.tsx)
-   and its CSS to the *PROJECT MOTIFS* block.
+   and its CSS to the *PROJECT MOTIFS* block. To point at something in the art,
+   draw in `ART_BOX`.
 4. Pose it for `prefers-reduced-motion` in the block at the very end of
    `globals.css` — see below.
 
 Motifs are decorative: `aria-hidden`, `pointer-events: none`, pure SVG and CSS, no
 canvas, no animation library, no image bytes, and no randomness, so the server and
 the client render identical markup. `motifNote` on each project is the line under
-the hero that owns up to what is moving back there.
+the hero that owns up to what is moving in the picture.
+
+> Avoid `mix-blend-mode` on anything full-bleed in a scene. A blend layer that
+> size makes the browser recomposite the whole hero on every frame of the motif
+> above it, which was enough to stall the compositor on the busiest artwork.
+> Plain alpha gets the same look.
 
 ## Stack
 

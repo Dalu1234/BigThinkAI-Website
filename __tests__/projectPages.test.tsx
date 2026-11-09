@@ -33,6 +33,20 @@ describe('EDGE team pages', () => {
     expect(val).toHaveAttribute('data-text', LEVEL_LABEL.TBD)
   })
 
+  test('the hero is built on the artwork, and the motif rides the same plate', () => {
+    const { container } = render(<ProjectPage slug={lantern.id} />)
+    const plate = container.querySelector('.scene__plate')
+    expect(plate).toBeInTheDocument()
+    // the art and the motif have to share the plate, or the motif's
+    // coordinates stop landing on the thing in the picture
+    expect(plate!.querySelector('.scene__art')).toBeInTheDocument()
+    expect(plate!.querySelector('.motif')).toBeInTheDocument()
+    // the artwork appears once, in the scene — not again in the brief
+    // (next/image rewrites src, so go by the alt text it carries)
+    expect(screen.getAllByAltText(lantern.imageAlt)).toHaveLength(1)
+    expect(plate!.querySelector('img')).toHaveAttribute('alt', lantern.imageAlt)
+  })
+
   test('the ambient motif is decorative only — hidden from assistive tech', () => {
     const { container } = render(<ProjectPage slug={lantern.id} />)
     const motif = container.querySelector('.motif')
