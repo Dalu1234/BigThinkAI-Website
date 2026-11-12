@@ -14,7 +14,7 @@ import {
   EDGE_APPLICATIONS_OPEN,
 } from '../src/content/club'
 import type { ClubEvent } from '../src/content/club'
-import { PROJECTS, LEVEL_COLOR, LEVEL_LABEL } from '../src/content/projects'
+import { PROJECTS } from '../src/content/projects'
 import { shortDate, longDate, daysAway, whenLabel } from '../src/lib/dates'
 
 export default function Home() {
@@ -24,7 +24,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>BigThink AI — Think Big</title>
+        <title>BigThink AI · Think Big</title>
         <meta
           name="description"
           content={`${CLUB.name} is a student-run AI organization at the ${CLUB.school}. ${CLUB.mission}.`}
@@ -48,12 +48,6 @@ export default function Home() {
                   <span className="crosshair" aria-hidden="true" />
                   <span className="hero__tagline-text">Think Big</span>
                   <span className="crosshair" aria-hidden="true" />
-                </p>
-
-                <p className="hero__mission">
-                  A student-run AI organization at the {CLUB.school}. Weekly workshops,
-                  semester-long build teams, and the events in between — all pointed at
-                  one thing: pushing beyond the frontier of AI.
                 </p>
 
                 <div className="hero__cta">
@@ -100,10 +94,8 @@ export default function Home() {
                 <div className="mission__body">
                   <p>{CLUB.purpose}</p>
                   <p>
-                    In practice that means you can show up knowing nothing and leave
-                    having shipped something — a workshop series that starts
-                    non-technical and ends technical, and build teams where students
-                    own a project end to end.
+                    Workshops start non-technical and end technical. Build teams hand
+                    students a project to own end to end.
                   </p>
                 </div>
               </div>
@@ -143,14 +135,8 @@ export default function Home() {
                 <p className="kicker">03 / EDGE Teams · 2026–2027</p>
                 <h2 className="section-title">The Projects</h2>
                 <span className="hatch" aria-hidden="true" />
-                <p className="status">
-                  <span className="status__dot" aria-hidden="true" />
-                  Five teams building now
-                </p>
                 <p className="section-lede">
-                  Semester-long, student-owned, and each one aimed at something real —
-                  a deployed tool, a live demo, a paper. Pick a team for the short
-                  version, then open its own page.
+                  Pick a team for the short version, then open its page.
                 </p>
               </div>
 
@@ -168,7 +154,7 @@ export default function Home() {
                       aria-selected={p.id === activeId}
                       aria-controls={`panel-${p.id}`}
                       className="rail__item"
-                      style={{ ['--lvl' as string]: LEVEL_COLOR[p.level] }}
+                      data-team={p.theme}
                       onClick={() => setActiveId(p.id)}
                     >
                       <span className="rail__dot" aria-hidden="true" />
@@ -185,7 +171,7 @@ export default function Home() {
                   id={`panel-${active.id}`}
                   role="tabpanel"
                   aria-labelledby={`tab-${active.id}`}
-                  style={{ ['--lvl' as string]: LEVEL_COLOR[active.level] }}
+                  data-team={active.theme}
                 >
                   <div className="record__swap" key={active.id}>
                     <div className="record__media">
@@ -198,17 +184,7 @@ export default function Home() {
                       />
                       <div className="record__titlebox">
                         <h3 className="record__title">{active.name}</h3>
-                        <p className="lvl">
-                          <span className="lvl__key">Skill lvl:</span>
-                          <span
-                            className={`lvl__val${
-                              active.level === 'TBD' ? ' lvl__val--glitch' : ''
-                            }`}
-                            data-text={LEVEL_LABEL[active.level]}
-                          >
-                            {LEVEL_LABEL[active.level]}
-                          </span>
-                        </p>
+                        <p className="record__sector">{active.sector}</p>
                       </div>
                     </div>
 
@@ -218,13 +194,13 @@ export default function Home() {
                         <p className="record__desc">{active.description}</p>
                         <div className="record__goal">
                           <p className="record__goal-text">
-                            <strong>Our goal:</strong> {active.goal}
+                            <strong>Deliverable:</strong> {active.goal}
                           </p>
                         </div>
                       </div>
 
                       <div>
-                        <p className="field__label">Skills you&apos;ll learn</p>
+                        <p className="field__label">Technical approach</p>
                         <ul className="skills">
                           {active.skills.map((s) => (
                             <li key={s}>{s}</li>
@@ -242,8 +218,7 @@ export default function Home() {
                         </span>
                       </a>
                       <span className="record__foot-note">
-                        Every team has its own page — built to look like the thing it
-                        is building.
+                        Full brief, milestones, and how to work with the team.
                       </span>
                     </div>
                   </div>
@@ -267,8 +242,8 @@ export default function Home() {
                 </p>
                 <p className="section-note">
                   {EDGE_APPLICATIONS_OPEN
-                    ? 'Here is what a team signs up for, and what we look for in the people who join one.'
-                    : 'Teams are set for this cycle. This is what the next call will ask for — the next intake is announced in Discord.'}
+                    ? 'What a team signs up for, and what we look for.'
+                    : 'Teams are set for this cycle. Here is what the next call will ask for. Intake is announced in Discord.'}
                 </p>
               </div>
 
@@ -301,10 +276,9 @@ export default function Home() {
             <div className="shell">
               <h2 className="join__title">Are You Ready?</h2>
               <p className="join__lede">
-                EDGE teams are set for 2026–27, but the workshops run every week and
-                they&apos;re open to everyone. The Discord is where announcements land,
-                where the next intake gets called, and where the people building this
-                stuff actually are.
+                EDGE teams are set for 2026–27. Workshops run every week and they are
+                open to everyone. Discord is where announcements land and where the
+                next intake gets called.
               </p>
 
               <div className="doors">
@@ -330,7 +304,7 @@ export default function Home() {
                       Join an EDGE Team <span className="arrow" aria-hidden="true">→</span>
                     </h3>
                     <p className="door__note">
-                      Apply to join a semester-long build team and own a project end to end.
+                      Join a build team and own a project end to end.
                     </p>
                   </a>
                 ) : (
@@ -340,8 +314,7 @@ export default function Home() {
                       EDGE Teams <span className="arrow" aria-hidden="true">→</span>
                     </h3>
                     <p className="door__note">
-                      Applications are closed for this cycle. See what the five teams are
-                      building, and watch Discord for the next call.
+                      Closed for this cycle. See what the five teams are building.
                     </p>
                   </a>
                 )}
@@ -352,8 +325,7 @@ export default function Home() {
                     Work With Us <span className="arrow" aria-hidden="true">→</span>
                   </h3>
                   <p className="door__note">
-                    Mentoring a team, sponsoring the club, or bringing us a problem worth
-                    solving — email us.
+                    Mentor a team, sponsor the club, or bring us a problem.
                   </p>
                 </a>
 

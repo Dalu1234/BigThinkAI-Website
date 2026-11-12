@@ -5,38 +5,45 @@ import type { GetStaticPaths, GetStaticProps } from 'next'
 import Navigation from '../../components/Navigation'
 import SiteFooter from '../../components/SiteFooter'
 import ProjectMotif from '../../components/projects/ProjectMotif'
-import {
-  CLUB,
-  LINKS,
-  EVENTS,
-  EDGE_APPLICATIONS_OPEN,
-} from '../../src/content/club'
+import { CLUB, LINKS, EVENTS, PILLARS } from '../../src/content/club'
 import {
   PROJECTS,
-  LEVEL_COLOR,
-  LEVEL_LABEL,
   projectById,
   projectNeighbours,
 } from '../../src/content/projects'
 import { longDate, daysAway, countdownLabel } from '../../src/lib/dates'
 
-/* One page per EDGE team, generated at build time from PROJECTS.
+/* One page per EDGE project, generated at build time from PROJECTS.
 
-   The page is built around the team's own artwork: the hero is that
+   The page is built around the project's own artwork: the hero is that
    picture, full bleed, graded to the palette taken out of it, with a
    motif moving inside it that is registered to the picture's own pixel
-   space. `data-team` is the switch — it swaps the whole scene.      */
+   space. `data-team` is the switch — it swaps the whole scene.
+
+   The AUDIENCE here is a corporate partner, not a student looking for a
+   team. So the page leads with sector, stage and what the work is aimed
+   at; the brief argues why it matters outside the club; and the one CTA
+   is a conversation with us. "Skills you'll learn", skill grading and the
+   application funnel are gone entirely — one quiet line at the foot of
+   the Work-with-us card is all the student path needs. */
 
 type Props = { slug: string }
 
 export default function ProjectPage({ slug }: Props) {
   const project = projectById(slug) ?? PROJECTS[0]
   const { prev, next } = projectNeighbours(project.id)
-  const position = PROJECTS.findIndex((p) => p.id === project.id) + 1
 
   const milestones = EVENTS.filter((e) => e.projectId === project.id).sort((a, b) =>
     a.date.localeCompare(b.date)
   )
+
+  // How EDGE teams operate, read off the programme slide in club.ts rather
+  // than retyped here, so the two cannot drift apart.
+  const howItRuns = PILLARS.find((pillar) => pillar.name === 'EDGE')?.facts ?? []
+
+  const partnerMail = `mailto:${CLUB.email}?subject=${encodeURIComponent(
+    `Partnering on ${project.name}`
+  )}`
 
   // Resolved after mount — the page is static, so a build-time "today"
   // would freeze on the day it was last deployed.
@@ -46,15 +53,14 @@ export default function ProjectPage({ slug }: Props) {
   return (
     <>
       <Head>
-        <title>{`${project.name} — EDGE Team · ${CLUB.name}`}</title>
-        <meta name="description" content={`${project.name}: ${project.blurb} An EDGE build team at ${CLUB.name}, ${CLUB.school}.`} />
+        <title>{`${project.name} · ${CLUB.name}`}</title>
+        <meta
+          name="description"
+          content={`${project.name}. ${project.sector}. ${project.blurb} Built by a student team at ${CLUB.name}, ${CLUB.school}.`}
+        />
       </Head>
 
-      <div
-        className="page film-grain proj"
-        data-team={project.theme}
-        style={{ ['--lvl' as string]: LEVEL_COLOR[project.level] }}
-      >
+      <div className="page film-grain proj" data-team={project.theme}>
         <Navigation />
 
         <main>
@@ -81,53 +87,40 @@ export default function ProjectPage({ slug }: Props) {
 
             <div className="shell proj-hero__inner">
               <a className="proj-back" href="/projects">
-                <span aria-hidden="true">←</span> All EDGE teams
+                <span aria-hidden="true">←</span> All projects
               </a>
-
-              <p className="kicker">
-                EDGE Team {String(position).padStart(2, '0')} · 2026–2027
-              </p>
 
               <h1 className="proj-hero__name">{project.name}</h1>
               <p className="proj-hero__blurb">{project.blurb}</p>
 
               <div className="proj-chips">
-                <span className="proj-chip proj-chip--lvl">
-                  <span className="proj-chip__key">Skill lvl</span>
-                  <span
-                    className={`proj-chip__val${
-                      project.level === 'TBD' ? ' lvl__val--glitch' : ''
-                    }`}
-                    data-text={LEVEL_LABEL[project.level]}
-                  >
-                    {LEVEL_LABEL[project.level]}
-                  </span>
+                <span className="proj-chip proj-chip--lead">{project.sector}</span>
+                <span className="proj-chip">
+                  <span className="proj-chip__key">Stage</span>
+                  <span className="proj-chip__val">{project.stage}</span>
                 </span>
-                <span className="proj-chip">Semester-long</span>
-                <span className="proj-chip">One build hour a week</span>
-                <span className="proj-chip">Student-owned, end to end</span>
+                <span className="proj-chip">
+                  <span className="proj-chip__key">Aimed at</span>
+                  <span className="proj-chip__val">{project.target}</span>
+                </span>
               </div>
 
               <div className="proj-hero__cta">
-                <a
-                  className="btn btn-primary"
-                  href={LINKS.discord}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Join the Discord <span className="arrow" aria-hidden="true">→</span>
+                <a className="btn btn-primary" href={partnerMail}>
+                  Talk to us about this{' '}
+                  <span className="arrow" aria-hidden="true">→</span>
                 </a>
+                {project.demo && (
+                  <a className="btn btn-ghost" href={project.demo.href}>
+                    {project.demo.label}{' '}
+                    <span className="arrow" aria-hidden="true">→</span>
+                  </a>
+                )}
                 <a className="btn btn-ghost" href="#brief">
                   Read the brief
                 </a>
               </div>
             </div>
-
-            {/* owns up to whatever is moving in the picture */}
-            <p className="motif-note">
-              <span className="motif-note__key">In this scene</span>
-              {project.motifNote}
-            </p>
           </header>
 
           {/* ════════ THE BRIEF ════════ */}
@@ -143,15 +136,31 @@ export default function ProjectPage({ slug }: Props) {
                 <div className="proj-main">
                   <p className="proj-desc">{project.description}</p>
 
+                  <div className="proj-why">
+                    <p className="proj-why__key">Why it matters</p>
+                    <p className="proj-why__text">{project.why}</p>
+                  </div>
+
                   <div className="proj-goal">
-                    <p className="proj-goal__key">Our goal</p>
+                    <p className="proj-goal__key">Deliverable</p>
                     <p className="proj-goal__text">{project.goal}</p>
                   </div>
+
+                  {howItRuns.length > 0 && (
+                    <div className="proj-runs">
+                      <p className="proj-runs__key">How the team runs</p>
+                      <ul className="proj-runs__list">
+                        {howItRuns.map((fact) => (
+                          <li key={fact}>{fact}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
 
                 <aside className="proj-aside">
                   <div className="proj-card">
-                    <p className="field__label">Skills you&apos;ll learn</p>
+                    <p className="field__label">Technical approach</p>
                     <ul className="skills">
                       {project.skills.map((s) => (
                         <li key={s}>{s}</li>
@@ -161,7 +170,7 @@ export default function ProjectPage({ slug }: Props) {
 
                   {milestones.length > 0 && (
                     <div className="proj-card">
-                      <p className="field__label">Dates that matter</p>
+                      <p className="field__label">Milestones</p>
                       <ul className="mstones">
                         {milestones.map((e) => {
                           const delta = daysAway(e.date, today)
@@ -182,41 +191,23 @@ export default function ProjectPage({ slug }: Props) {
                     </div>
                   )}
 
+                  {/* The one ask on the page, and it is aimed at a partner. */}
                   <div className="proj-card proj-card--cta">
-                    <p className="field__label">Getting on this team</p>
-                    {EDGE_APPLICATIONS_OPEN ? (
-                      <>
-                        <p className="proj-card__note">
-                          EDGE applications are open. Apply and tell us which team you
-                          want.
-                        </p>
-                        <a
-                          className="btn btn-primary"
-                          href={LINKS.edgeApplication}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          Apply to EDGE <span className="arrow" aria-hidden="true">→</span>
-                        </a>
-                      </>
-                    ) : (
-                      <>
-                        <p className="proj-card__note">
-                          The 2026–27 roster is set, so this team is not taking new
-                          members right now. The next intake gets called in Discord —
-                          and the weekly workshops are open to everyone in the meantime.
-                        </p>
-                        <a
-                          className="btn btn-ghost"
-                          href={LINKS.discord}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          Watch for the next call{' '}
-                          <span className="arrow" aria-hidden="true">→</span>
-                        </a>
-                      </>
-                    )}
+                    <p className="field__label">Work with us</p>
+                    <p className="proj-card__note">
+                      Bring a problem or a dataset, sponsor compute, mentor the team, or
+                      ask for a walkthrough.
+                    </p>
+                    <a className="btn btn-primary" href={partnerMail}>
+                      Get in touch <span className="arrow" aria-hidden="true">→</span>
+                    </a>
+                    <p className="proj-card__alt">
+                      UMD student? EDGE intake is called in{' '}
+                      <a href={LINKS.discord} target="_blank" rel="noopener noreferrer">
+                        Discord
+                      </a>
+                      .
+                    </p>
                   </div>
                 </aside>
               </div>
@@ -228,7 +219,7 @@ export default function ProjectPage({ slug }: Props) {
             <div className="shell">
               <div className="section-head">
                 <p className="kicker">Keep going</p>
-                <h2 className="section-title">Other teams</h2>
+                <h2 className="section-title">Other projects</h2>
                 <span className="hatch" aria-hidden="true" />
               </div>
 
@@ -269,7 +260,7 @@ export default function ProjectPage({ slug }: Props) {
 
               <p className="proj-siblings__all">
                 <a className="btn btn-ghost" href="/projects">
-                  All five teams <span className="arrow" aria-hidden="true">→</span>
+                  All five projects <span className="arrow" aria-hidden="true">→</span>
                 </a>
               </p>
             </div>

@@ -1,14 +1,14 @@
 /* EDGE teams, 2026–2027.
-   Descriptions, skill levels, skills and goals are transcribed from the
-   BigThinkAI intro deck. Artwork is exported from the same deck into
-   /public/projects.
+   Descriptions, skills and goals are transcribed from the BigThinkAI intro
+   deck; the partner framing is ours. Artwork is exported from the same deck into /public/projects.
+
+   This data is a PARTNER-FACING showcase — it exists to show companies
+   what the club builds, not to recruit students. So sector / stage /
+   target / why are written for someone evaluating the work, and nothing
+   here grades a project by how hard it is to join.
 
    Order here is display order — the first entry is what loads selected on
    the home page, and the order the team pages link through. Boldest leads. */
-
-/* The deck lists Project Lantern's level as "???", so TBD is a real state
-   and renders as a glitched "???" rather than a tidy label. */
-export type SkillLevel = 'Beginner' | 'Intermediate' | 'Advanced' | 'TBD'
 
 /* ── Team personality ────────────────────────────────────────────────
    Every team has its own page at /projects/<id>, and every page looks
@@ -35,35 +35,25 @@ export type Project = {
   name: string
   /** Short form for the home-page rail, where space is tight. */
   railLabel: string
-  level: SkillLevel
   theme: ProjectTheme
   image: string
   imageAlt: string
   /** One line, in the team's own voice, for the top of its page. */
   blurb: string
   description: string
-  /** Caption that owns up to what the ambient motif on the page is. */
-  motifNote: string
+  /** The field a partner would file this under. Two or three words. */
+  sector: string
+  /** Where the work actually is: Scoping, Building, Submitting, Deployed. */
+  stage: string
+  /** The external thing it is aimed at — a venue, a demo, a deployment. */
+  target: string
+  /** Why it matters outside the club. Written for a partner, not a recruit. */
+  why: string
+  /** A page on this site showing the work itself. Only some teams have one. */
+  demo?: { href: string; label: string }
+  /** The technical approach — methods and stack the team works in. */
   skills: string[]
   goal: string
-}
-
-/* Skill level drives the traffic-light dot and tag. It stays independent of
-   the page accent on purpose: the level means something, so it keeps its
-   own colour everywhere, even on a page themed another hue entirely. */
-export const LEVEL_COLOR: Record<SkillLevel, string> = {
-  Beginner: 'var(--lvl-beginner)',
-  Intermediate: 'var(--lvl-intermediate)',
-  Advanced: 'var(--lvl-advanced)',
-  TBD: 'var(--lvl-tbd)',
-}
-
-/* What the skill tag actually prints. */
-export const LEVEL_LABEL: Record<SkillLevel, string> = {
-  Beginner: 'Beginner',
-  Intermediate: 'Intermediate',
-  Advanced: 'Advanced',
-  TBD: '???',
 }
 
 export const PROJECTS: Project[] = [
@@ -71,15 +61,17 @@ export const PROJECTS: Project[] = [
     id: 'project-lantern',
     name: 'Project Lantern',
     railLabel: 'Project Lantern',
-    level: 'TBD',
     theme: 'lantern',
     image: '/projects/lantern.jpg',
-    imageAlt: 'Macro photograph of a spotted lanternfly lit in red',
+    imageAlt: 'Spotted lanternfly',
     blurb: 'Find the lanternflies. Then work out where they are going next.',
     description:
-      'Lanternflies are damaging Maryland’s vineyards and orchards, and right now people mostly rely on spotting and reporting them by hand. We’re building a system that can automatically find lanternflies, track where they’re spreading, and help predict where they’re likely to show up next.',
-    motifNote:
-      'Lycorma delicatula. The swarm in the picture has not stopped moving, and the scarlet blooms are where a sighting spreads from.',
+      'Lanternflies are tearing through Maryland’s vineyards and orchards, and detection is still people filing sightings by hand. We automate it: find them, track the spread, predict where they hit next.',
+    sector: 'Agriculture · Invasive species',
+    stage: 'Scoping',
+    target: 'Field detection & spread forecasting',
+    why:
+      'Growers and agencies work off scattered hand-filed sightings. Detection plus a forecast gives them a map they can act on before an infestation sets in.',
     skills: [
       'Object detection & computer vision',
       'Edge / on-device model deployment',
@@ -95,16 +87,18 @@ export const PROJECTS: Project[] = [
     id: 'world-model-benchmark',
     name: 'World Model Benchmark',
     railLabel: 'World Model',
-    level: 'Advanced',
     theme: 'worldmodel',
     image: '/projects/worldmodel.jpg',
-    imageAlt: 'A lone figure watching a vast orbital system',
+    imageAlt: 'A figure watching an orbital system',
     blurb:
       'Does the model actually know physics, or does it only look like it does?',
     description:
       'We’re building the first world model benchmark that measures with particle-level ground truth instead of a VLM’s opinion, to find out where world models stop being physics engines.',
-    motifNote:
-      'Two orbits laid over the system in the painting: the solid body is ground truth, the hollow one is what a model predicted. Watch them come apart.',
+    sector: 'AI evaluation · World models',
+    stage: 'Building',
+    target: 'WACV 2027 workshop paper',
+    why:
+      'Anyone deploying a world model needs to know where its physics stops holding. Today’s evaluations ask another model for an opinion. Particle-level ground truth gives a number you can hold a system to.',
     skills: [
       'Video & vision-language models',
       'World model evaluation',
@@ -121,16 +115,19 @@ export const PROJECTS: Project[] = [
     id: 'heartbeat-challenge',
     name: 'HEARTBEAT Challenge',
     railLabel: 'HEARTBEAT',
-    level: 'Intermediate',
     theme: 'heartbeat',
     image: '/projects/heartbeat.jpg',
-    imageAlt: 'Abstract profile of a face dissolving into an audio waveform',
+    imageAlt: 'A face dissolving into a waveform',
     blurb:
       'Audio agents that know when to speak, when to act, and when to stay quiet.',
     description:
-      'We’re building audio agents that know when to speak, when to act, and when to stay quiet. Our team will compete in the HEARTBEAT ICASSP 2027 Challenge, training AI to understand live conversations and environmental sounds, then make the right decision at the right moment.',
-    motifNote:
-      'A reader running the length of the waveform in the picture, closing brackets around the stretches where it goes quiet.',
+      'Audio agents that know when to speak, when to act, and when to stay quiet. We train on live conversation and environmental sound, then compete in the HEARTBEAT ICASSP 2027 Challenge.',
+    sector: 'Audio AI · Conversational agents',
+    stage: 'Building',
+    target: 'ICASSP 2027 challenge entry',
+    demo: { href: '/heartbeat', label: 'See the results' },
+    why:
+      'Voice products fail in the same place: they talk over people and miss the room. Knowing when to stay quiet is what makes an audio agent usable, and it is what this challenge measures.',
     skills: [
       'Audio & speech AI',
       'Audio event detection',
@@ -148,16 +145,18 @@ export const PROJECTS: Project[] = [
     id: 'assembly-jarvis',
     name: 'Assembly Jarvis',
     railLabel: 'Assembly Jarvis',
-    level: 'Intermediate',
     theme: 'jarvis',
     image: '/projects/jarvis.jpg',
-    imageAlt: 'Painted scene of a workshop with robotic arms mid-assembly',
+    imageAlt: 'A workshop with robotic arms mid-assembly',
     blurb:
-      'An assistant that watches you build something and talks you through it — all on your own device.',
+      'An assistant that watches you build and talks you through it, all on your own device.',
     description:
-      'We’re building a local multimodal “Jarvis” that watches a physical assembly, understands what the user has completed, and guides them through each step. The assistant can identify parts, answer questions, track progress, and catch mistakes in real time — all while keeping the camera feed and AI processing on the user’s device.',
-    motifNote:
-      'What the assistant sees. Every box is locked onto something actually in this workshop — the arm, the housing, the gears on the bench.',
+      'A local multimodal assistant that watches a physical assembly and guides each step. It identifies parts, answers questions, tracks progress, and catches mistakes in real time. The camera feed and the model never leave the device.',
+    sector: 'Industrial AI · On-device multimodal',
+    stage: 'Building',
+    target: 'Live on-device demo',
+    why:
+      'Guided assembly, field service and training all want an assistant that can see the work. Keeping the camera and the model on-device makes that possible where streaming video off-site is not: a factory floor, or anywhere footage cannot leave the building.',
     skills: [
       'Multimodal AI / Vision-Language Models (VLMs)',
       'Local LLM & VLM deployment',
@@ -174,16 +173,18 @@ export const PROJECTS: Project[] = [
     id: 'umd-ai-advisor',
     name: 'UMD AI Advisor',
     railLabel: 'UMD AI Advisor',
-    level: 'Beginner',
     theme: 'advisor',
     image: '/projects/advisor.jpg',
-    imageAlt: 'Illustration of McKeldin Library and the UMD mall',
+    imageAlt: 'McKeldin Library and the UMD mall',
     blurb:
-      'Every requirement, prerequisite and catalog page at UMD — in one conversation.',
+      'Every UMD requirement, prerequisite and catalog page, in one conversation.',
     description:
-      'We’re building an AI academic advisor that turns UMD’s scattered course requirements, prerequisites, and catalog information into one conversational planning tool. Students can ask what courses they’re eligible for, understand prerequisite chains, and build multi-semester schedules, with RAG grounding responses in official UMD information rather than relying on an LLM’s memory.',
-    motifNote:
-      'A prerequisite chain routed across the mall, resolving toward McKeldin. Every stop sits on a real path in the picture.',
+      'UMD’s requirements, prerequisites and catalog pages are scattered across dozens of sites. We turn them into one conversation: what you can take, how prerequisites chain, what a multi-semester plan looks like. RAG grounds every answer in official pages, not the model’s memory.',
+    sector: 'Applied RAG · Institutional knowledge',
+    stage: 'Building',
+    target: 'Deployed tool, 100 students',
+    why:
+      'The hard part is not the chat interface. It is grounding answers in scattered, frequently changing documents without inventing a requirement. Same shape for any organization sitting on policy pages.',
     skills: [
       'Retrieval-Augmented Generation (RAG)',
       'LLM prompting & response generation',
