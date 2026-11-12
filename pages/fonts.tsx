@@ -12,7 +12,7 @@ export default function FontsPage() {
   return (
     <div className="page film-grain">
       <Head>
-        <title>Specimens — BigThink AI</title>
+        <title>Specimens · BigThink AI</title>
         <meta name="robots" content="noindex" />
       </Head>
       <Navigation />
@@ -29,7 +29,7 @@ export default function FontsPage() {
         </div>
 
         <section className="card" style={{ marginBottom: '1.5rem' }}>
-          <p className="field__label">Display — Josefin Sans</p>
+          <p className="field__label">Display · Josefin Sans</p>
           {SPECIMENS.map((s) => (
             <div key={s.label} style={{ marginBottom: '1.75rem' }}>
               <p
@@ -46,9 +46,9 @@ export default function FontsPage() {
         </section>
 
         <section className="card" style={{ marginBottom: '1.5rem' }}>
-          <p className="field__label">Label — Oswald</p>
+          <p className="field__label">Label · Oswald</p>
           <p className="label" style={{ fontSize: '1.5rem', margin: '0 0 0.5rem' }}>
-            Skill lvl · Description · Our goal
+            Sector · Description · Deliverable
           </p>
           <p style={{ color: 'var(--text-faint)', fontSize: '0.72rem', margin: 0 }}>
             Oswald 600 / uppercase / 0.09em tracking
@@ -56,14 +56,14 @@ export default function FontsPage() {
         </section>
 
         <section className="card">
-          <p className="field__label">Body — JetBrains Mono</p>
+          <p className="field__label">Body · JetBrains Mono</p>
           <p style={{ marginTop: 0 }}>
             We&apos;re building the first world model benchmark that measures with
             particle-level ground truth instead of a VLM&apos;s opinion, to find out
             where world models stop being physics engines.
           </p>
           <p style={{ color: 'var(--text-faint)', fontSize: '0.72rem', margin: 0 }}>
-            JetBrains Mono 400 / 15px / 1.75 line-height — the default on <code>body</code>
+            JetBrains Mono 400 / 15px / 1.75 line-height, the default on <code>body</code>
           </p>
         </section>
       </main>

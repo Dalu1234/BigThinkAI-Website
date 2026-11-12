@@ -10,7 +10,7 @@ export const CLUB = {
   location: 'College Park, MD 20742',
   email: 'bigthinkai@gmail.com',
   purpose:
-    'The purpose of this student organization is to bring awareness and appreciation towards the growing interdisciplinary field of artificial intelligence. We intend to advance our members’ knowledge and experience with fields within and related to AI through meetings, discussions, seminars, and projects.',
+    'We take students from knowing nothing about AI to shipping something real.',
 } as const
 
 /* Intake state. EDGE applications for the 2026-27 cohort closed on 9/24.
@@ -30,27 +30,27 @@ export const PILLARS = [
   {
     index: '01',
     name: 'Workshops',
-    desc: 'Weekly, hands-on, and built so you can walk in without a background in AI.',
+    desc: 'Weekly, hands-on, no background needed.',
     facts: [
       'One hour, every week',
-      'Non-technical → technical progression across the series',
+      'Non-technical → technical across the series',
       'Starter code provided for every session',
     ],
   },
   {
     index: '02',
     name: 'EDGE',
-    desc: 'Semester-long, team-based AI projects with real deliverables and full ownership.',
+    desc: 'Semester-long team projects. Students own them end to end.',
     facts: [
       'Weekly one-hour build session',
       'Small teams, end-to-end development',
-      'Ships something real — a paper, a benchmark, a deployed tool',
+      'Ships a paper, a benchmark, or a deployed tool',
     ],
   },
   {
     index: '03',
     name: 'Events',
-    desc: 'The rest of it — the talks, the demos, and the people you build with.',
+    desc: 'Talks, demos, and the people you build with.',
     facts: [
       'Speaker sessions and discussions',
       'Project demos and showcases',
@@ -62,14 +62,14 @@ export const PILLARS = [
 /* Why join EDGE / what we look for — from the recruitment slide. */
 export const EDGE_PITCH = {
   why: [
-    'Join your Avengers dream team of other passionate, highly motivated people',
-    'Work on cool projects that ACTUALLY solve problems',
-    'Full ownership of your work, end-to-end AI development',
-    'Get recognized for your work',
+    'A team of people who move fast',
+    'Projects that solve real problems',
+    'Full ownership, end to end',
+    'Recognition for the work',
   ],
   looking: [
-    'Experience coding end-to-end projects and delivering fast',
-    'Domain knowledge in the area — or a track record of ramping up quickly',
+    'You ship end-to-end projects, fast',
+    'You know the domain, or you ramp up quickly',
   ],
 } as const
 
@@ -114,9 +114,8 @@ export const EVENTS: ClubEvent[] = [
     location: 'ARM 0131',
     kind: 'workshop',
     poster: '/events/reinforcement-learning.jpg',
-    posterAlt:
-      'Reinforcement Learning workshop poster — an engraved brain on a teal starfield',
-    note: 'Agents, rewards, and learning by trial and error. No background needed — starter code provided.',
+    posterAlt: 'Reinforcement Learning workshop poster',
+    note: 'Agents, rewards, and trial and error. No background needed. Starter code provided.',
   },
   {
     id: 'wacv-submission',
@@ -132,7 +131,7 @@ export const EVENTS: ClubEvent[] = [
     date: '2026-12-11',
     kind: 'deadline',
     projectId: 'heartbeat-challenge',
-    note: 'Audio agents team submits to the ICASSP 2027 challenge.',
+    note: 'HEARTBEAT team submits to the ICASSP 2027 challenge.',
   },
 ]
 
@@ -140,7 +139,7 @@ export const EVENTS: ClubEvent[] = [
 export const CADENCE = [
   {
     what: 'Workshop',
-    note: 'One hour, hands-on, starter code provided. Open to everyone.',
+    note: 'One hour, hands-on, open to everyone.',
   },
   {
     what: 'EDGE Build',

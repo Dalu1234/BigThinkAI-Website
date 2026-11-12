@@ -6,7 +6,7 @@ export default function TypographySpec() {
   return (
     <div className="page film-grain">
       <Head>
-        <title>Typography — BigThink AI</title>
+        <title>Typography · BigThink AI</title>
         <meta name="robots" content="noindex" />
       </Head>
       <Navigation />
@@ -51,7 +51,7 @@ export default function TypographySpec() {
             <span className="pillar__index">--font-mono</span>
             <h2 className="pillar__name">JetBrains Mono</h2>
             <p className="pillar__desc">
-              Body copy, descriptions, and metadata — the deck sets everything technical
+              Body copy, descriptions, and metadata. The deck sets everything technical
               in monospace, and so does the site. It is the default on <code>body</code>.
             </p>
             <p style={{ marginTop: '0.5rem', color: 'var(--text-dim)' }}>
@@ -64,16 +64,16 @@ export default function TypographySpec() {
           <h2 className="h2-display">Skill-level colors</h2>
           <ul className="skills">
             <li>
-              <span style={{ color: 'var(--lvl-beginner)' }}>Beginner — var(--lvl-beginner)</span>
+              <span style={{ color: 'var(--lvl-beginner)' }}>Beginner · var(--lvl-beginner)</span>
             </li>
             <li>
-              <span style={{ color: 'var(--lvl-intermediate)' }}>Intermediate — var(--lvl-intermediate)</span>
+              <span style={{ color: 'var(--lvl-intermediate)' }}>Intermediate · var(--lvl-intermediate)</span>
             </li>
             <li>
-              <span style={{ color: 'var(--lvl-advanced)' }}>Advanced — var(--lvl-advanced)</span>
+              <span style={{ color: 'var(--lvl-advanced)' }}>Advanced · var(--lvl-advanced)</span>
             </li>
             <li>
-              <span style={{ color: 'var(--text-faint)' }}>TBD — var(--text-faint)</span>
+              <span style={{ color: 'var(--text-faint)' }}>TBD · var(--text-faint)</span>
             </li>
           </ul>
         </div>

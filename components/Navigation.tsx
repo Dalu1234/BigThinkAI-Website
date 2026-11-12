@@ -4,6 +4,7 @@ const LINKS = [
   { href: '/#mission', label: 'Mission' },
   { href: '/#what-we-do', label: 'What We Do' },
   { href: '/#projects', label: 'EDGE Projects' },
+  { href: '/heartbeat', label: 'Heartbeat' },
   { href: '/#whats-next', label: "What's Next" },
   { href: '/#join', label: 'Join' },
 ]
@@ -67,7 +68,7 @@ export default function Navigation() {
       data-open={open}
       data-scrolled={scrolled}
     >
-      <a className="brand" href="/#top" aria-label="BigThink AI — home">
+      <a className="brand" href="/#top" aria-label="BigThink AI home">
         BigThink<span className="brand__big">AI</span>
       </a>
 

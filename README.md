@@ -20,10 +20,10 @@ than invented separately:
 |---|---|
 | **Ground** | Near-black `#08090B` with a CSS-generated diagonal brushed texture and film grain |
 | **Display type** | Josefin Sans, weight 200–300, uppercase, ~0.09em tracking |
-| **Label type** | Oswald, condensed and bold — kickers, skill tags, buttons, nav |
+| **Label type** | Oswald, condensed and bold — kickers, sector tags, buttons, nav |
 | **Body type** | JetBrains Mono — the deck sets all technical copy in mono, so does the site |
 | **Accent** | Steel blue `#5B82B8`, the "THINK BIG" blue |
-| **Skill levels** | Beginner `#6FE35B` · Intermediate `#F2A33C` · Advanced `#E8453A` |
+| **Signal colours** | Live `#6FE35B` · Caution `#F2A33C` · Urgent `#E8453A` — status dots and countdowns |
 | **Devices** | Corner registration marks, hatched rules under headings, crosshair markers |
 
 Everything is defined as CSS custom properties at the top of
@@ -36,12 +36,13 @@ Site copy lives in two editable modules — **edit these, not the components**:
 
 - [`src/content/club.ts`](src/content/club.ts) — mission, purpose, links, programs,
   recruitment pitch, upcoming events, weekly cadence
-- [`src/content/projects.ts`](src/content/projects.ts) — the EDGE teams: descriptions,
-  skill levels, skills taught, goals, and each team's `theme`
+- [`src/content/projects.ts`](src/content/projects.ts) — the EDGE projects:
+  descriptions, sector, stage, target, the partner argument, the technical
+  approach, deliverables, and each project's `theme`
 
 Project artwork in `public/projects/` is exported from the intro deck — all five
 at 1400×787. It is not decoration: each team page is built around its own piece,
-and the per-team palettes are sampled out of them. See **Team pages** below.
+and the per-team palettes are sampled out of them. See **Project pages** below.
 
 ### Adding an event
 
@@ -72,23 +73,42 @@ would go stale. Posters go in `public/events/` at 4:5 (1080×1350 works well).
 Listed in display order — the array order in `projects.ts` is what the site shows,
 and the first entry loads selected. Boldest work leads.
 
-| Team | Level | Page | Goal |
+| Project | Sector | Page | Deliverable |
 |---|---|---|---|
-| Project Lantern | `???` | `/projects/project-lantern` | Detect lanternflies early, predict where they spread |
-| World Model Benchmark | Advanced | `/projects/world-model-benchmark` | Submit to the WACV 2027 workshop (due 11/23) |
-| HEARTBEAT Challenge | Intermediate | `/projects/heartbeat-challenge` | Submit to the ICASSP 2027 challenge (due 12/11) |
-| Assembly Jarvis | Intermediate | `/projects/assembly-jarvis` | Demo a working multimodal system in real time |
-| UMD AI Advisor | Beginner | `/projects/umd-ai-advisor` | A deployed system 100 students use to get information quickly |
+| Project Lantern | Agriculture · Invasive species | `/projects/project-lantern` | Detect lanternflies early, predict where they spread |
+| World Model Benchmark | AI evaluation · World models | `/projects/world-model-benchmark` | Submit to the WACV 2027 workshop (due 11/23) |
+| HEARTBEAT Challenge | Audio AI · Conversational agents | `/projects/heartbeat-challenge` | Submit to the ICASSP 2027 challenge (due 12/11) |
+| Assembly Jarvis | Industrial AI · On-device multimodal | `/projects/assembly-jarvis` | Demo a working multimodal system in real time |
+| UMD AI Advisor | Applied RAG · Institutional knowledge | `/projects/umd-ai-advisor` | A deployed system 100 students use to get information quickly |
 
-Project Lantern's level is `TBD` in the data, which renders as a glitched `???`
-in violet — the deck leaves it undeclared, and the site says so loudly rather than
-flattening it to a tidy label. Reorder the array to reorder the site.
+Reorder the array to reorder the site.
 
-### Team pages
+### Project pages
 
-Every team has its own page, generated at build time from `PROJECTS` by
+Every project has its own page, generated at build time from `PROJECTS` by
 [`pages/projects/[slug].tsx`](pages/projects/%5Bslug%5D.tsx), plus a flat index at
 `/projects`. The shell is shared. The world is not.
+
+**These pages are for partners, not recruits.** `/projects` and the five pages
+under it are the showcase we point a company, a lab or a sponsor at — so they
+lead with sector, stage and what the work is aimed at, argue why it matters
+outside the club, and make exactly one ask: talk to us. The student intake lives
+on the home page instead. Concretely, that means these four fields on `Project`
+carry the partner framing:
+
+| Field | Is |
+|---|---|
+| `sector` | The field a partner would file this under. Leads the chip row, in the team's accent |
+| `stage` | Where the work actually is — Scoping, Building, Submitting, Deployed |
+| `target` | The external thing it is aimed at: a venue, a demo, a deployment |
+| `why` | Two or three sentences on why it matters to someone outside the club |
+
+There is **no skill level** anywhere in this data and no application form on
+these pages — a difficulty grade is a signal for someone deciding whether to
+join, which is not who is reading. `__tests__/projectPages.test.tsx` asserts it:
+if the recruiting funnel creeps back onto a project page, those tests fail. The
+one student-facing line is the footnote under the *Work with us* card, and it
+points at Discord.
 
 Each page is **built out of that team's artwork**. The hero is the picture, full
 bleed, graded to a palette sampled from the picture itself, with a motif alive
@@ -103,8 +123,9 @@ attribute on the page.
 | `jarvis` | brass `#EDB869` + indigo `#6E89C8` | The assistant's own view: every box is locked onto a real object in that workshop — the arm, the housing, the stock, the gears — with a scanline and a reticle working the room |
 | `advisor` | brick `#DC6655` + olive `#CBBE7E` | A prerequisite chain routed across the mall toward McKeldin. Every stop sits on a real walkway, bench or step in the painting |
 
-Skill level keeps its own colour (`--lvl`) independently of the page palette, on
-every page — the level means something, so it stays a traffic light everywhere.
+The home-page dossier reads the same palette: each rail item carries its
+project's `data-team`, so the dot and the active marker are a swatch of that
+project's artwork rather than a traffic light.
 
 **How a motif stays registered to the art.** All five pieces of deck art are
 1400×787. `.scene__plate` is sized to exactly that aspect ratio and scaled to
@@ -139,8 +160,8 @@ Per-team framing knobs, all set beside the palette:
 
 Motifs are decorative: `aria-hidden`, `pointer-events: none`, pure SVG and CSS, no
 canvas, no animation library, no image bytes, and no randomness, so the server and
-the client render identical markup. `motifNote` on each project is the line under
-the hero that owns up to what is moving in the picture.
+the client render identical markup. They carry no caption — the motif either
+reads as part of the picture or it is not working.
 
 > Avoid `mix-blend-mode` on anything full-bleed in a scene. A blend layer that
 > size makes the browser recomposite the whole hero on every frame of the motif
@@ -154,7 +175,7 @@ Next.js 15 (Pages Router) · React 18 · TypeScript (strict) · Jest + React Tes
 ```
 components/
   Navigation.tsx   site nav
-  SiteFooter.tsx   shared footer (home + team pages)
+  SiteFooter.tsx   shared footer (home + project pages)
   projects/
     ProjectMotif.tsx   the five ambient motifs
 pages/

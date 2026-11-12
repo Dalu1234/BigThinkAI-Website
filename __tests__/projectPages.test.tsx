@@ -1,11 +1,12 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import ProjectPage, { getStaticPaths, getStaticProps } from '../pages/projects/[slug]'
-import { PROJECTS, LEVEL_LABEL, projectNeighbours } from '../src/content/projects'
+import { PROJECTS, projectNeighbours } from '../src/content/projects'
+import { CLUB, LINKS } from '../src/content/club'
 
 const lantern = PROJECTS[0]
 
-describe('EDGE team pages', () => {
+describe('EDGE project pages', () => {
   test('one static path per team, and the slug is the project id', async () => {
     const result = await getStaticPaths({})
     const slugs = result.paths.map((p) => (typeof p === 'string' ? p : String(p.params.slug)))
@@ -17,7 +18,7 @@ describe('EDGE team pages', () => {
     expect(res).toEqual({ notFound: true })
   })
 
-  test('renders the team name, its one-liner and its goal', () => {
+  test('renders the project name, its one-liner and its deliverable', () => {
     render(<ProjectPage slug={lantern.id} />)
     expect(screen.getByRole('heading', { level: 1, name: lantern.name })).toBeInTheDocument()
     expect(screen.getByText(lantern.blurb)).toBeInTheDocument()
@@ -25,12 +26,39 @@ describe('EDGE team pages', () => {
     expect(screen.getByText(lantern.skills[0])).toBeInTheDocument()
   })
 
-  test('Project Lantern prints its undeclared level as a glitched ???', () => {
-    render(<ProjectPage slug="project-lantern" />)
-    const val = screen.getByText(LEVEL_LABEL.TBD)
-    expect(val).toHaveClass('lvl__val--glitch')
-    // the glitch ghosts are drawn from data-text, so it has to match
-    expect(val).toHaveAttribute('data-text', LEVEL_LABEL.TBD)
+  /* These pages are the partner-facing showcase. The three tests below are
+     the guard on that: they fail if the student recruiting funnel creeps
+     back onto them. */
+
+  test('the hero leads with what a partner scans for', () => {
+    render(<ProjectPage slug={lantern.id} />)
+    expect(screen.getByText(lantern.sector)).toBeInTheDocument()
+    expect(screen.getByText(lantern.stage)).toBeInTheDocument()
+    expect(screen.getByText(lantern.target)).toBeInTheDocument()
+    expect(screen.getByText(lantern.why)).toBeInTheDocument()
+  })
+
+  test('the page asks for a conversation, not an application', () => {
+    render(<ProjectPage slug={lantern.id} />)
+    const asks = screen.getAllByRole('link', { name: /talk to us|get in touch/i })
+    expect(asks.length).toBeGreaterThan(0)
+    for (const ask of asks) {
+      expect(ask).toHaveAttribute('href', expect.stringContaining(`mailto:${CLUB.email}`))
+    }
+    // no route into the intake form from a partner page
+    expect(
+      screen.queryByRole('link', { name: new RegExp(LINKS.edgeApplication, 'i') })
+    ).toBeNull()
+    expect(document.querySelector(`a[href="${LINKS.edgeApplication}"]`)).toBeNull()
+  })
+
+  test('nothing grades the project by how hard it is to join', () => {
+    const { container } = render(<ProjectPage slug="project-lantern" />)
+    expect(screen.queryByText(/skill\s*l(vl|evel)/i)).toBeNull()
+    expect(screen.queryByText(/skills you.ll learn/i)).toBeNull()
+    expect(screen.queryByText(/beginner|intermediate|advanced/i)).toBeNull()
+    // Lantern's level was the loudest of the five ("???")
+    expect(container.textContent).not.toContain('???')
   })
 
   test('the hero is built on the artwork, and the motif rides the same plate', () => {
@@ -56,10 +84,10 @@ describe('EDGE team pages', () => {
     expect(container.querySelector('.proj')).toHaveAttribute('data-team', lantern.theme)
   })
 
-  test('every team links on to the next and back to the index', () => {
+  test('every project links on to the next and back to the index', () => {
     render(<ProjectPage slug={lantern.id} />)
     const { next } = projectNeighbours(lantern.id)
-    expect(screen.getByRole('link', { name: /all edge teams/i })).toHaveAttribute('href', '/projects')
+    expect(screen.getByRole('link', { name: /all projects/i })).toHaveAttribute('href', '/projects')
     expect(
       screen.getByRole('link', { name: new RegExp(`next.*${next!.name}`, 'is') })
     ).toHaveAttribute('href', `/projects/${next!.id}`)

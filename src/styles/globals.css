@@ -1,8 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════
    BIGTHINK AI — "Frontier" design system
    Derived from the club's own deck: near-black ground, thin wide-tracked
-   display caps, monospace body copy, registration marks, steel blue, and
-   traffic-light skill levels.
+   display caps, monospace body copy, registration marks, and steel blue.
    ═══════════════════════════════════════════════════════════════════ */
 
 :root {
@@ -27,11 +26,11 @@
   --steel-bright: #8CB2E4;
   --steel-rgb:    91, 130, 184;
 
-  /* ── Skill levels (traffic light, straight from the deck) ── */
+  /* ── Signal colours (traffic light) ──
+     Status dots, countdowns, and the semantic aliases below. */
   --lvl-beginner:     #6FE35B;
   --lvl-intermediate: #F2A33C;
   --lvl-advanced:     #E8453A;
-  /* Wildcard: the deck prints Project Lantern's level as "???" */
   --lvl-tbd:          #C77DFF;
   --glitch-cyan:      #37F2FF;
   --glitch-magenta:   #FF3DCE;
@@ -519,20 +518,12 @@ img { max-width: 100%; display: block; }
   line-height: 1;
 }
 
-.hero__mission {
-  margin: clamp(2.2rem, 5vw, 3.2rem) auto 0;
-  max-width: 54ch;
-  color: var(--text-dim);
-  font-size: clamp(0.88rem, 1.9vw, 1.05rem);
-  line-height: 1.85;
-}
-
 .hero__cta {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.9rem;
-  margin-top: clamp(2rem, 4vw, 2.8rem);
+  margin-top: clamp(2.6rem, 5vw, 3.8rem);
 }
 
 .hero__meta {
@@ -751,7 +742,7 @@ img { max-width: 100%; display: block; }
   position: absolute;
   left: 0; top: 0; bottom: 0;
   width: 2px;
-  background: var(--lvl, var(--steel));
+  background: var(--accent, var(--steel));
   transform: scaleY(0);
   transition: transform var(--dur) var(--ease);
 }
@@ -765,7 +756,7 @@ img { max-width: 100%; display: block; }
   flex: none;
   width: 7px; height: 7px;
   border-radius: 50%;
-  background: var(--lvl, var(--steel));
+  background: var(--accent, var(--steel));
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
 }
 .rail__num {
@@ -828,20 +819,18 @@ img { max-width: 100%; display: block; }
   color: #fff;
 }
 
-/* SKILL LVL: BEGINNER */
-.lvl {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  margin-top: 0.85rem;
+/* The project's field, in its own palette — same tag the /projects
+   cards carry, so the dossier and the index agree. */
+.record__sector {
+  margin: 0.8rem 0 0;
   font-family: var(--font-label, 'Oswald', system-ui, sans-serif);
   font-weight: 600;
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   text-transform: uppercase;
-  letter-spacing: 0.13em;
+  letter-spacing: 0.2em;
+  color: var(--accent, var(--steel-bright));
+  text-shadow: 0 1px 14px rgba(6, 7, 9, 0.9);
 }
-.lvl__key { color: #fff; }
-.lvl__val { color: var(--lvl, var(--steel)); }
 
 .record__body {
   padding: clamp(1.4rem, 3.5vw, 2.4rem);
@@ -869,11 +858,11 @@ img { max-width: 100%; display: block; }
   line-height: 1.8;
 }
 
-/* "Our goal: ..." callout */
+/* "Deliverable: ..." callout */
 .record__goal {
   margin-top: 1.75rem;
   padding: 1rem 1.15rem;
-  border-left: 2px solid var(--lvl, var(--steel));
+  border-left: 2px solid var(--steel);
   background: rgba(255, 255, 255, 0.025);
 }
 .record__goal-text {
@@ -906,7 +895,7 @@ img { max-width: 100%; display: block; }
 .skills li::before {
   content: '+';
   flex: none;
-  color: var(--lvl, var(--steel));
+  color: var(--steel);
   font-size: 0.78rem;
 }
 
@@ -1452,67 +1441,6 @@ img { max-width: 100%; display: block; }
 }
 
 /* ═══════════════════════════════════════════════════
-   GLITCHED "???" — the undeclared skill level
-   At rest it reads as clean white ???; every few seconds the
-   chromatic ghosts tear through it.
-   ═══════════════════════════════════════════════════ */
-
-.lvl__val--glitch {
-  position: relative;
-  display: inline-block;
-  color: #fff;
-  /* Oversized on purpose: this team's scope is undeclared, and the tag
-     should read as a different kind of answer, not a tidy label. */
-  font-size: 1.35em;
-  line-height: 1;
-  letter-spacing: 0.22em;
-  text-shadow: 0 0 18px rgba(199, 125, 255, 0.55);
-}
-.lvl__val--glitch::before,
-.lvl__val--glitch::after {
-  content: attr(data-text);
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  /* hidden at rest — the keyframes punch holes through */
-  clip-path: inset(100% 0 0 0);
-}
-.lvl__val--glitch::before {
-  color: var(--glitch-cyan);
-  animation: glitch-cyan 3.2s steps(1) infinite;
-}
-.lvl__val--glitch::after {
-  color: var(--glitch-magenta);
-  animation: glitch-magenta 3.2s steps(1) infinite;
-}
-
-@keyframes glitch-cyan {
-  0%, 62%, 100% { clip-path: inset(100% 0 0 0); transform: none; }
-  64% { clip-path: inset(8%  0 62% 0); transform: translateX(-3px); }
-  68% { clip-path: inset(58% 0 14% 0); transform: translateX(2px); }
-  72% { clip-path: inset(32% 0 42% 0); transform: translateX(-4px); }
-  76% { clip-path: inset(100% 0 0 0); transform: none; }
-  88% { clip-path: inset(20% 0 50% 0); transform: translateX(-2px); }
-  91% { clip-path: inset(100% 0 0 0); transform: none; }
-}
-@keyframes glitch-magenta {
-  0%, 62%, 100% { clip-path: inset(100% 0 0 0); transform: none; }
-  64% { clip-path: inset(54% 0 20% 0); transform: translateX(3px); }
-  68% { clip-path: inset(12% 0 60% 0); transform: translateX(-2px); }
-  72% { clip-path: inset(40% 0 34% 0); transform: translateX(4px); }
-  76% { clip-path: inset(100% 0 0 0); transform: none; }
-  88% { clip-path: inset(46% 0 26% 0); transform: translateX(2px); }
-  91% { clip-path: inset(100% 0 0 0); transform: none; }
-}
-
-/* No motion: drop the ghosts entirely, keep a legible ??? */
-@media (prefers-reduced-motion: reduce) {
-  .lvl__val--glitch::before,
-  .lvl__val--glitch::after { display: none; }
-  .lvl__val--glitch { color: var(--lvl-tbd); text-shadow: none; }
-}
-
-/* ═══════════════════════════════════════════════════
    WHAT'S NEXT — featured event + upcoming list + cadence
    ═══════════════════════════════════════════════════ */
 
@@ -1697,14 +1625,14 @@ img { max-width: 100%; display: block; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   EDGE TEAM PAGES
-   Every team gets its own page, and every page is built out of that
-   team's artwork: the hero is the picture, full bleed, graded to a
+   EDGE PROJECT PAGES
+   Every project gets its own page, and every page is built out of that
+   project's artwork: the hero is the picture, full bleed, graded to a
    palette sampled from the picture itself, with a motif alive inside
    it. `data-team` is the one switch that swaps the whole scene.
 
-   Skill level keeps --lvl independently of all this. The level means
-   something, so it holds its traffic-light colour on every page.
+   These pages are for partners, not recruits — so nothing here grades a
+   project by how hard it is to join.
    ═══════════════════════════════════════════════════════════════════ */
 
 [data-team] {
@@ -1913,6 +1841,10 @@ img { max-width: 100%; display: block; }
 .proj-chip {
   display: inline-flex;
   align-items: baseline;
+  flex-wrap: wrap;
+  /* a long "aimed at" value wraps inside the chip rather than pushing
+     the row past the gutter on a phone */
+  max-width: 100%;
   gap: 0.5rem;
   padding: 0.42rem 0.85rem;
   border: 1px solid var(--line);
@@ -1927,9 +1859,16 @@ img { max-width: 100%; display: block; }
   backdrop-filter: blur(7px);
   -webkit-backdrop-filter: blur(7px);
 }
-.proj-chip--lvl { border-color: rgba(255, 255, 255, 0.22); padding-right: 1rem; }
+/* First chip in the row carries the sector — the thing a partner scans
+   for — so it gets the accent and the weight. The rest are key/value. */
+.proj-chip--lead {
+  border-color: rgba(var(--accent-rgb), 0.5);
+  background: linear-gradient(to right, rgba(var(--accent-rgb), 0.2), rgba(6, 7, 9, 0.7));
+  color: var(--text);
+  font-weight: 600;
+}
 .proj-chip__key { color: var(--text-faint); }
-.proj-chip__val { color: var(--lvl, var(--accent)); font-weight: 600; }
+.proj-chip__val { color: var(--accent); font-weight: 600; }
 
 .proj-hero__cta {
   display: flex;
@@ -1958,37 +1897,6 @@ img { max-width: 100%; display: block; }
   background: rgba(var(--accent-rgb), 0.12);
 }
 
-/* the line that owns up to what is moving in the picture */
-.motif-note {
-  position: relative;
-  z-index: 3;
-  width: 100%;
-  max-width: 1220px;
-  margin: clamp(2rem, 5vw, 3.25rem) auto 0;
-  padding-inline: var(--gutter);
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.75rem;
-  font-size: 0.74rem;
-  line-height: 1.6;
-  color: var(--text-dim);
-  text-shadow: 0 1px 18px rgba(6, 7, 9, 0.95);
-}
-.motif-note__key {
-  font-family: var(--font-label, 'Oswald', system-ui, sans-serif);
-  font-weight: 600;
-  font-size: 0.6rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--accent);
-  border: 1px solid rgba(var(--accent-rgb), 0.4);
-  border-radius: 2px;
-  padding: 0.18rem 0.45rem;
-  flex: none;
-  background: rgba(6, 7, 9, 0.5);
-}
-
 /* ── The brief ───────────────────────────────────────────────────── */
 
 .proj .section-head .kicker { color: var(--accent); }
@@ -2005,6 +1913,31 @@ img { max-width: 100%; display: block; }
   margin: 0;
   max-width: 54ch;
   font-size: clamp(1rem, 2.1vw, 1.2rem);
+  line-height: 1.8;
+  color: var(--text-dim);
+}
+
+/* Why it matters, for a reader who is not in the club. Quieter frame than
+   the deliverable below it — a rule down the left rather than a tinted
+   box — so the two blocks read in order instead of competing. */
+.proj-why {
+  margin-top: clamp(1.5rem, 3.5vw, 2.1rem);
+  padding-left: clamp(1rem, 2.2vw, 1.35rem);
+  border-left: 1px solid var(--line);
+}
+.proj-why__key {
+  font-family: var(--font-label, 'Oswald', system-ui, sans-serif);
+  font-weight: 600;
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin: 0 0 0.6rem;
+}
+.proj-why__text {
+  margin: 0;
+  max-width: 54ch;
+  font-size: clamp(0.92rem, 1.9vw, 1.05rem);
   line-height: 1.8;
   color: var(--text-dim);
 }
@@ -2030,6 +1963,46 @@ img { max-width: 100%; display: block; }
   font-size: clamp(0.95rem, 2vw, 1.12rem);
   line-height: 1.6;
   color: var(--text);
+}
+
+/* How an EDGE team operates. Real context for a partner, but it is not
+   the argument — so it sits at the foot of the brief as a compact row
+   rather than taking a fourth card and running the aside a full screen
+   past the bottom of the main column. */
+.proj-runs {
+  margin-top: clamp(1.75rem, 4vw, 2.5rem);
+  padding-top: clamp(1.1rem, 2.4vw, 1.5rem);
+  border-top: 1px solid var(--line-soft);
+}
+.proj-runs__key {
+  font-family: var(--font-label, 'Oswald', system-ui, sans-serif);
+  font-weight: 600;
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin: 0 0 0.9rem;
+}
+.proj-runs__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+.proj-runs__list li {
+  position: relative;
+  padding-left: 0.95rem;
+  font-size: 0.78rem;
+  line-height: 1.65;
+  color: var(--text-dim);
+}
+.proj-runs__list li::before {
+  content: '+';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
 }
 
 .proj-aside {
@@ -2058,6 +2031,20 @@ img { max-width: 100%; display: block; }
   color: var(--text-dim);
 }
 .proj-card .btn { width: 100%; justify-content: center; }
+/* The student route off a partner-facing page: present, deliberately
+   small, and never competing with the ask above it. */
+.proj-card__alt {
+  margin: 1rem 0 0;
+  font-size: 0.72rem;
+  line-height: 1.7;
+  color: var(--text-faint);
+}
+.proj-card__alt a {
+  color: var(--text-dim);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.proj-card__alt a:hover { color: var(--accent); }
 
 .mstones { list-style: none; margin: 0; padding: 0; }
 .mstone {
@@ -2248,6 +2235,14 @@ img { max-width: 100%; display: block; }
   line-height: 1.05;
   color: var(--text);
 }
+.team-card__sector {
+  font-family: var(--font-label, 'Oswald', system-ui, sans-serif);
+  font-weight: 500;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
 .team-card__blurb {
   font-size: 0.82rem;
   line-height: 1.7;
@@ -2268,23 +2263,64 @@ img { max-width: 100%; display: block; }
   letter-spacing: 0.17em;
   text-transform: uppercase;
 }
-.team-card__lvl {
+/* What the project is aimed at — a venue, a demo, a deployment. */
+.team-card__stage {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--lvl, var(--accent));
+  color: var(--text-dim);
+  text-transform: none;
+  letter-spacing: 0.06em;
 }
 .team-card__dot {
   width: 6px; height: 6px;
   flex: none;
   border-radius: 50%;
-  background: var(--lvl, var(--accent));
+  background: var(--accent);
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
 }
 .team-card__go { color: var(--text-faint); transition: color var(--dur) var(--ease); }
 .team-card:hover .team-card__go { color: var(--accent); }
 .team-card__go .arrow { transition: transform var(--dur) var(--ease); display: inline-block; }
 .team-card:hover .team-card__go .arrow { transform: translateX(4px); }
+
+/* ── Ways to work with us ─────────────────────────────────────────
+   Three concrete openings, on the index only. The team pages make the
+   same ask in their aside, so it is never stated twice on one page. */
+.ways {
+  margin-top: clamp(2.5rem, 5vw, 4rem);
+  padding-top: clamp(1.5rem, 3vw, 2rem);
+  border-top: 1px solid var(--line-soft);
+}
+.ways__label { margin-bottom: clamp(1.1rem, 2.5vw, 1.5rem); }
+.ways__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: clamp(1rem, 2.5vw, 1.75rem);
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+}
+.way {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding-left: clamp(0.85rem, 1.8vw, 1.1rem);
+  border-left: 1px solid var(--line);
+}
+.way__key {
+  font-family: var(--font-label, 'Oswald', system-ui, sans-serif);
+  font-weight: 500;
+  font-size: 0.72rem;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+.way__note {
+  font-size: 0.82rem;
+  line-height: 1.75;
+  color: var(--text-dim);
+}
 
 .index-foot {
   display: flex;
@@ -2319,7 +2355,7 @@ img { max-width: 100%; display: block; }
   font-size: 0.6rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--lvl, var(--steel));
+  color: var(--steel);
   border: 1px solid currentColor;
   border-radius: 2px;
   padding: 0.18rem 0.45rem;
@@ -2333,7 +2369,7 @@ img { max-width: 100%; display: block; }
   font-size: 1.05rem;
   color: var(--text);
 }
-.record__open:hover .record__open-name { color: var(--lvl, var(--steel-bright)); }
+.record__open:hover .record__open-name { color: var(--steel-bright); }
 .record__open-name .arrow { display: inline-block; transition: transform var(--dur) var(--ease); }
 .record__open:hover .arrow { transform: translateX(4px); }
 .record__foot-note {
