@@ -105,13 +105,16 @@ export default function ProjectPage({ slug }: Props) {
                 </span>
               </div>
 
+              {/* The hero sends you to the work itself. Teams with nothing to
+                  show yet just get the brief; the partner ask lives in the
+                  aside, where it is not competing with a live demo. */}
               <div className="proj-hero__cta">
-                <a className="btn btn-primary" href={partnerMail}>
-                  Talk to us about this{' '}
-                  <span className="arrow" aria-hidden="true">→</span>
-                </a>
-                {project.demos?.map((d) => (
-                  <a className="btn btn-ghost" key={d.href} href={d.href}>
+                {project.demos?.map((d, i) => (
+                  <a
+                    className={`btn ${i === 0 ? 'btn-primary' : 'btn-ghost'}`}
+                    key={d.href}
+                    href={d.href}
+                  >
                     {d.label}{' '}
                     <span className="arrow" aria-hidden="true">→</span>
                   </a>
