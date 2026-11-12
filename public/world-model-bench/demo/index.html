@@ -1,0 +1,732 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>World Model Bench</title>
+<meta name="description" content="Interactive walkthrough of the World Model Bench evaluators: gear interaction, swing physics, mirror memory and channel cuts.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@100..400&family=JetBrains+Mono:wght@300..600&family=Oswald:wght@400..700&display=swap" rel="stylesheet">
+<style>
+/* Visual language follows the BigThink AI "Frontier" system:
+   near-black ground, thin wide-tracked display caps, condensed labels,
+   mono body, steel blue, registration marks and traffic-light status. */
+:root{
+  --ink:#08090B;--ink-raised:#0E1014;--ink-card:#15181E;--ink-lift:#1C2029;
+  --line:rgba(255,255,255,.11);--line-soft:rgba(255,255,255,.055);--line-hard:rgba(255,255,255,.22);
+  --text:#ECEEF2;--text-dim:#99A2B0;--text-faint:#5E6673;
+  --steel:#5B82B8;--steel-bright:#8CB2E4;--steel-rgb:91,130,184;
+  --good:#6FE35B;--mid:#F2A33C;--bad:#E8453A;--tbd:#C77DFF;
+  --radius:2px;--gutter:clamp(1rem,4vw,3rem);--measure:68ch;
+  --ease:cubic-bezier(.22,.85,.3,1);--dur:420ms;
+  --f-display:'Josefin Sans',system-ui,sans-serif;
+  --f-label:'Oswald',system-ui,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:5.5rem;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--ink);color:var(--text);font-family:var(--f-mono);font-size:.9rem;line-height:1.75;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:-10%;z-index:0;pointer-events:none;background-image:
+  repeating-linear-gradient(74deg,rgba(255,255,255,.021) 0,rgba(255,255,255,.021) 1px,transparent 1px,transparent 3px,rgba(255,255,255,.009) 3px,rgba(255,255,255,.009) 4px,transparent 4px,transparent 11px),
+  repeating-linear-gradient(74deg,rgba(255,255,255,.015) 0,rgba(255,255,255,.015) 1px,transparent 1px,transparent 37px)}
+body::after{content:'';position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.4;mix-blend-mode:overlay;
+  background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180"><filter id="g"><feTurbulence baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23g)" opacity="0.055"/></svg>')}
+.page{position:relative;z-index:2}
+::selection{background:rgba(var(--steel-rgb),.35);color:#fff}
+:focus-visible{outline:2px solid var(--steel-bright);outline-offset:3px}
+img,video{max-width:100%;display:block}
+a{color:var(--steel-bright)}
+button{font:inherit;color:inherit}
+
+/* ── type primitives ── */
+.label{font-family:var(--f-label);font-weight:500;text-transform:uppercase;letter-spacing:.16em;font-size:.7rem}
+.kicker{font-family:var(--f-label);font-weight:500;font-size:.72rem;text-transform:uppercase;letter-spacing:.26em;color:var(--steel);margin:0;display:flex;align-items:center;gap:.6rem}
+.kicker::before{content:'';width:1.6rem;height:1px;background:var(--steel);opacity:.65}
+.section-title{font-family:var(--f-display);font-weight:200;text-transform:uppercase;letter-spacing:.085em;line-height:.98;margin:0;font-size:clamp(2rem,6vw,3.7rem)}
+.lede{max-width:var(--measure);color:var(--text-dim);margin:0}
+.hatch{width:112px;height:11px;border:1px solid var(--line-hard);opacity:.55;background-image:repeating-linear-gradient(-52deg,var(--text) 0,var(--text) 1.5px,transparent 1.5px,transparent 6px)}
+.dim{color:var(--text-dim)}.faint{color:var(--text-faint)}
+
+/* registration marks on all four corners */
+.marks{position:relative}
+.marks::before,.marks::after,.marks>.m-tr,.marks>.m-bl{content:'';position:absolute;width:15px;height:15px;pointer-events:none;border:0 solid var(--line-hard);z-index:3}
+.marks::before{top:0;left:0;border-width:1px 0 0 1px}
+.marks::after{bottom:0;right:0;border-width:0 1px 1px 0}
+.marks>.m-tr{top:0;right:0;border-width:1px 1px 0 0}
+.marks>.m-bl{bottom:0;left:0;border-width:0 0 1px 1px}
+.crosshair{width:15px;height:15px;flex:none;border:1px solid currentColor;border-radius:50%;position:relative;opacity:.8}
+.crosshair::before,.crosshair::after{content:'';position:absolute;background:currentColor}
+.crosshair::before{left:50%;top:2px;bottom:2px;width:1px;transform:translateX(-50%)}
+.crosshair::after{top:50%;left:2px;right:2px;height:1px;transform:translateY(-50%)}
+
+/* ── layout ── */
+.shell{width:100%;max-width:1220px;margin-inline:auto;padding-inline:var(--gutter)}
+.section{position:relative;padding-block:clamp(4rem,9vw,7.5rem);border-top:1px solid var(--line-soft)}
+.section-head{display:grid;grid-template-columns:1fr auto;align-items:end;gap:1.25rem 2rem;margin-bottom:clamp(2rem,4.5vw,3.25rem)}
+.section-head .lede{grid-column:1/-1}
+.section-index{font-family:var(--f-display);font-weight:100;font-size:clamp(3rem,9vw,6rem);line-height:.8;color:transparent;-webkit-text-stroke:1px var(--line-hard);letter-spacing:.04em;user-select:none}
+
+/* ── buttons ── */
+.btn{font-family:var(--f-label);font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.15em;text-decoration:none;display:inline-flex;align-items:center;gap:.65rem;padding:.9rem 1.6rem;border-radius:var(--radius);border:1px solid transparent;cursor:pointer;line-height:1;transition:background var(--dur) var(--ease),border-color var(--dur) var(--ease),color var(--dur) var(--ease),transform var(--dur) var(--ease)}
+.btn-primary{background:var(--steel);color:#05070A;border-color:var(--steel)}
+.btn-primary:hover{background:var(--steel-bright);border-color:var(--steel-bright);transform:translateY(-2px)}
+.btn-ghost{background:transparent;color:var(--text);border-color:var(--line-hard)}
+.btn-ghost:hover{border-color:var(--steel);color:var(--steel-bright);background:rgba(var(--steel-rgb),.08);transform:translateY(-2px)}
+.btn .arrow{transition:transform var(--dur) var(--ease)}.btn:hover .arrow{transform:translateX(4px)}
+
+/* ── nav ── */
+.site-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem var(--gutter);background:rgba(8,9,11,.55);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);border-bottom:1px solid transparent;transition:background var(--dur) var(--ease),border-color var(--dur) var(--ease),padding var(--dur) var(--ease)}
+.site-nav[data-scrolled=true]{background:rgba(8,9,11,.9);border-bottom-color:var(--line-soft);padding-block:.7rem}
+.brand{display:inline-flex;gap:.5rem;text-decoration:none;color:var(--text);font-family:var(--f-display);font-weight:300;font-size:1rem;text-transform:uppercase;letter-spacing:.2em;white-space:nowrap}
+.brand b{font-weight:300;color:var(--steel)}
+.site-links{display:flex;gap:.2rem;list-style:none;margin:0;padding:0}
+.site-links a{display:block;color:var(--text-dim);text-decoration:none;font-family:var(--f-label);font-weight:500;font-size:.76rem;text-transform:uppercase;letter-spacing:.13em;padding:.5rem .75rem;border-radius:var(--radius);transition:color var(--dur) var(--ease),background var(--dur) var(--ease)}
+.site-links a:hover,.site-links a[aria-current=true]{color:var(--text);background:rgba(255,255,255,.05)}
+.site-links a[aria-current=true]{color:var(--steel-bright)}
+
+/* ── hero ── */
+.hero{min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding-block:8rem 4rem;position:relative}
+.hero__frame{padding:clamp(2rem,6vw,4.5rem) clamp(1rem,4vw,3rem);text-align:center}
+.hero__over{font-family:var(--f-label);font-weight:500;letter-spacing:.32em;text-transform:uppercase;font-size:.72rem;color:var(--text-faint);margin:0 0 1.5rem}
+.hero__wordmark{font-family:var(--f-display);font-weight:200;text-transform:uppercase;letter-spacing:.085em;line-height:.95;margin:0;font-size:clamp(2.3rem,9.6vw,7.6rem)}
+.hero__wordmark span{display:block}
+.hero__wordmark .accent{color:var(--steel)}
+.hero__tagline{display:flex;align-items:center;justify-content:center;gap:clamp(.8rem,3vw,2rem);margin:clamp(1.1rem,2.5vw,1.6rem) 0 0;color:var(--steel)}
+.hero__tagline-text{font-family:var(--f-label);font-weight:700;text-transform:uppercase;letter-spacing:.2em;font-size:clamp(.95rem,2.6vw,1.75rem);line-height:1}
+.hero__mission{margin:clamp(2rem,5vw,3rem) auto 0;max-width:58ch;color:var(--text-dim);font-size:clamp(.85rem,1.8vw,1rem);line-height:1.85}
+.hero__cta{display:flex;flex-wrap:wrap;justify-content:center;gap:.9rem;margin-top:clamp(1.8rem,4vw,2.6rem)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);margin-top:clamp(3rem,7vw,4.5rem);border:1px solid var(--line-soft);background:rgba(14,16,20,.6)}
+.stat{padding:1.3rem 1rem;text-align:center;border-left:1px solid var(--line-soft)}
+.stat:first-child{border-left:0}
+.stat b{display:block;font-family:var(--f-display);font-weight:200;font-size:clamp(2rem,5vw,3rem);line-height:1;letter-spacing:.04em}
+.stat span{display:block;margin-top:.55rem;color:var(--text-faint)}
+.hero__scroll{position:absolute;left:50%;bottom:1.5rem;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.55rem;color:var(--text-faint);text-decoration:none;font-family:var(--f-label);font-size:.62rem;letter-spacing:.26em;text-transform:uppercase}
+.hero__scroll i{width:1px;height:40px;background:linear-gradient(var(--line-hard),transparent)}
+
+/* ── shared demo pieces ── */
+.panel{background:var(--ink-raised);border:1px solid var(--line-soft);border-radius:var(--radius)}
+.pad{padding:clamp(1rem,2.4vw,1.6rem)}
+.tabs{display:flex;flex-wrap:wrap;gap:.4rem}
+.tab{font-family:var(--f-label);font-weight:500;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;background:transparent;border:1px solid var(--line);color:var(--text-dim);padding:.55rem .9rem;border-radius:var(--radius);cursor:pointer;display:inline-flex;align-items:center;gap:.5rem;transition:all var(--dur) var(--ease)}
+.tab:hover{color:var(--text);border-color:var(--line-hard)}
+.tab[aria-pressed=true]{color:var(--text);border-color:var(--steel);background:rgba(var(--steel-rgb),.12)}
+.tab .dot{width:6px;height:6px;border-radius:50%;background:var(--text-faint)}
+.chip{font-family:var(--f-mono);font-size:.74rem;background:transparent;border:1px solid var(--line-soft);color:var(--text-faint);padding:.3rem .65rem;border-radius:var(--radius);cursor:pointer;transition:all var(--dur) var(--ease)}
+.chip:hover{color:var(--text-dim);border-color:var(--line)}
+.chip[aria-pressed=true]{color:var(--steel-bright);border-color:rgba(var(--steel-rgb),.6)}
+.ctl-row{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem 1.2rem;margin-bottom:1rem}
+.ctl-row .label{color:var(--text-faint);min-width:4.5rem}
+.status{display:inline-flex;align-items:center;gap:.55rem;font-family:var(--f-label);font-weight:500;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;border:1px solid var(--line);border-radius:999px;padding:.38rem .85rem;color:var(--text-dim)}
+.status i{width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 0 3px color-mix(in srgb,currentColor 18%,transparent)}
+.st-pass{color:var(--good);border-color:rgba(111,227,91,.35)}
+.st-fail{color:var(--bad);border-color:rgba(232,69,58,.38)}
+.st-review{color:var(--mid);border-color:rgba(242,163,60,.38)}
+.st-pending{color:var(--tbd);border-color:rgba(199,125,255,.35)}
+.media{position:relative;background:#000;border:1px solid var(--line-soft);overflow:hidden}
+.media img,.media video{width:100%;height:auto;aspect-ratio:16/9;object-fit:contain;background:#000}
+.media .tag{position:absolute;left:.7rem;top:.6rem;z-index:2;background:rgba(8,9,11,.78);backdrop-filter:blur(8px);padding:.25rem .55rem;border:1px solid var(--line-soft);color:var(--text-dim)}
+.playerbar{display:flex;align-items:center;gap:.8rem;padding:.65rem .8rem;background:var(--ink-card);border:1px solid var(--line-soft);border-top:0}
+.iconbtn{width:34px;height:34px;flex:none;display:grid;place-items:center;background:transparent;border:1px solid var(--line);border-radius:50%;cursor:pointer;color:var(--text);transition:all var(--dur) var(--ease)}
+.iconbtn:hover{border-color:var(--steel);color:var(--steel-bright)}
+.iconbtn svg{width:13px;height:13px}
+input[type=range]{flex:1;min-width:0;appearance:none;-webkit-appearance:none;height:2px;background:var(--line);outline-offset:6px;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--steel-bright);border:0}
+input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:var(--steel-bright);border:0}
+.counter{font-size:.74rem;color:var(--text-faint);min-width:4.2rem;text-align:right;font-variant-numeric:tabular-nums}
+select{font-family:var(--f-label);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;background:var(--ink-card);color:var(--text-dim);border:1px solid var(--line);border-radius:var(--radius);padding:.4rem .5rem;cursor:pointer}
+
+.score-big{display:flex;align-items:baseline;gap:.6rem}
+.score-big b{font-family:var(--f-display);font-weight:200;font-size:clamp(2.8rem,6vw,4.2rem);line-height:.9;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.score-big span{color:var(--text-faint)}
+.bars{display:grid;gap:.85rem;margin:1.2rem 0 0}
+.bar-head{display:flex;justify-content:space-between;gap:1rem;font-size:.76rem}
+.bar-head .label{color:var(--text-dim)}
+.bar-head b{font-weight:500;font-variant-numeric:tabular-nums}
+.track{height:3px;background:var(--line-soft);margin-top:.4rem;position:relative;overflow:hidden}
+.fill{position:absolute;inset:0 auto 0 0;width:0;background:var(--steel);transition:width 700ms var(--ease),background var(--dur) var(--ease)}
+.bar-note{font-size:.7rem;color:var(--text-faint);margin-top:.25rem}
+.evidence{margin:.5rem 0 0;padding:0;list-style:none;display:grid;gap:.35rem}
+.evidence li{font-size:.74rem;color:var(--text-dim);padding-left:1rem;position:relative;word-break:break-word}
+.evidence li::before{content:'';position:absolute;left:0;top:.7em;width:6px;height:1px;background:var(--bad)}
+.divider{height:1px;background:var(--line-soft);margin:1.3rem 0}
+.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line-soft);border:1px solid var(--line-soft);margin-top:1.2rem}
+.kv div{background:var(--ink-raised);padding:.75rem .8rem}
+.kv span{display:block;color:var(--text-faint)}
+.kv b{display:block;font-weight:500;font-size:1rem;margin-top:.15rem;font-variant-numeric:tabular-nums}
+.explain{font-size:.82rem;color:var(--text-dim);margin:.8rem 0 0;max-width:60ch}
+
+/* gear */
+.demo-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:1.25rem}
+.demo-grid>aside{align-self:start}
+.evidence li.ok{color:var(--good)}.evidence li.ok::before{background:var(--good)}
+@media (max-width:1100px){.variants{grid-template-columns:repeat(3,1fr)}}
+.thumbs{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:1rem}
+.thumbs .media img{aspect-ratio:16/9}
+.filmstrip{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-top:.5rem}
+.filmstrip button{padding:0;border:1px solid transparent;background:#000;cursor:pointer;opacity:.45;transition:opacity var(--dur) var(--ease),border-color var(--dur) var(--ease)}
+.filmstrip button img{aspect-ratio:16/9;object-fit:cover;width:100%}
+.filmstrip button:hover{opacity:.8}
+.filmstrip button[aria-current=true]{opacity:1;border-color:var(--steel)}
+
+/* swing */
+.swing-videos{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.chart{width:100%;height:auto;display:block}
+.chart .grid line{stroke:var(--line-soft)}
+.chart .axis text{fill:var(--text-faint);font-family:var(--f-mono);font-size:10px}
+.legend{display:flex;flex-wrap:wrap;gap:1rem;font-size:.72rem;color:var(--text-dim);margin-top:.4rem}
+.legend i{display:inline-block;width:18px;height:2px;vertical-align:middle;margin-right:.45rem}
+table{width:100%;border-collapse:collapse;font-size:.74rem;font-variant-numeric:tabular-nums}
+th{font-family:var(--f-label);font-weight:500;text-transform:uppercase;letter-spacing:.14em;font-size:.64rem;color:var(--text-faint);text-align:right;padding:.45rem .4rem;border-bottom:1px solid var(--line)}
+td{text-align:right;padding:.45rem .4rem;border-bottom:1px solid var(--line-soft);color:var(--text-dim)}
+th:first-child,td:first-child{text-align:left}
+.cap{display:inline-flex;align-items:center;gap:.5rem;margin-top:.75rem;font-size:.74rem;color:var(--bad)}
+.compare{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-top:1.25rem}
+.compare button{text-align:left;background:var(--ink-raised);border:1px solid var(--line-soft);padding:1rem;cursor:pointer;transition:all var(--dur) var(--ease)}
+.compare button:hover{border-color:var(--line-hard)}
+.compare button[aria-pressed=true]{border-color:var(--steel);background:rgba(var(--steel-rgb),.08)}
+.compare b{display:block;font-family:var(--f-display);font-weight:200;font-size:2rem;line-height:1;margin:.45rem 0 .3rem}
+
+/* mirror */
+.variants{display:grid;grid-template-columns:repeat(6,1fr);gap:.6rem;margin-top:1rem}
+.variant{padding:0;background:var(--ink-raised);border:1px solid var(--line-soft);cursor:pointer;text-align:left;transition:all var(--dur) var(--ease)}
+.variant img{aspect-ratio:832/480;object-fit:cover;width:100%;opacity:.7;transition:opacity var(--dur) var(--ease)}
+.variant div{padding:.55rem .6rem .65rem}
+.variant span{display:block;font-size:.68rem;color:var(--text-dim);line-height:1.35;min-height:2.7em}
+.variant b{display:block;font-family:var(--f-display);font-weight:300;font-size:1.25rem;margin-top:.2rem}
+.variant:hover img,.variant[aria-pressed=true] img{opacity:1}
+.variant[aria-pressed=true]{border-color:var(--steel)}
+.media.mirror img{aspect-ratio:832/480}
+.compare-slider{position:relative}
+.compare-slider .over{position:absolute;inset:0;overflow:hidden;clip-path:inset(0 0 0 50%)}
+.compare-slider .over img{position:absolute;inset:0;height:100%}
+.compare-slider .handle{position:absolute;top:0;bottom:0;left:50%;width:1px;background:var(--steel-bright);z-index:2;pointer-events:none}
+.compare-slider .handle::after{content:'';position:absolute;top:50%;left:-9px;width:18px;height:18px;border-radius:50%;border:1px solid var(--steel-bright);background:rgba(8,9,11,.7);transform:translateY(-50%)}
+.compare-slider input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;z-index:3;margin:0}
+.media .tag.right{left:auto;right:.7rem}
+
+/* channel cuts */
+.timeline{position:relative;display:flex;margin-top:.5rem;border:1px solid var(--line-soft);font-family:var(--f-label);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-faint)}
+.timeline span{padding:.35rem .5rem;border-left:1px solid var(--line-soft);text-align:center}
+.timeline span:first-child{border-left:0}
+.timeline span:nth-child(2){background:rgba(var(--steel-rgb),.08);color:var(--steel)}
+.timeline i{position:absolute;top:-3px;bottom:-3px;left:0;width:2px;background:var(--steel-bright);transition:left 80ms linear}
+.check-group{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;margin-top:.6rem}
+.check-group .label{min-width:4.6rem;font-size:.62rem}
+.check{font-size:.68rem;padding:.2rem .5rem;border:1px solid var(--line-soft);border-radius:var(--radius)}
+.check.ok{color:var(--text-dim)}
+.check.no{color:var(--bad);border-color:rgba(232,69,58,.4);background:rgba(232,69,58,.06)}
+.cuts{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:1rem}
+.cut{display:flex;flex-direction:column}
+.cut .body{padding:1rem 1.1rem 1.2rem;border:1px solid var(--line-soft);border-top:0;background:var(--ink-raised);flex:1}
+.cut h3{font-family:var(--f-display);font-weight:300;text-transform:uppercase;letter-spacing:.08em;font-size:1.05rem;line-height:1.25;margin:.2rem 0 .5rem}
+.cut p{font-size:.74rem;color:var(--text-dim);margin:0;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.cut details summary{cursor:pointer;color:var(--steel);font-size:.72rem;margin-top:.5rem;list-style:none}
+.cut details[open] p{-webkit-line-clamp:unset}
+
+/* pipeline */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line-soft)}
+.step{padding:1.5rem 1.3rem;border-left:1px solid var(--line-soft);background:rgba(14,16,20,.55)}
+.step:first-child{border-left:0}
+.step .n{font-family:var(--f-display);font-weight:100;font-size:2.6rem;line-height:1;color:var(--steel)}
+.step h3{font-family:var(--f-label);font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:.85rem;margin:.9rem 0 .4rem}
+.step p{margin:0;font-size:.78rem;color:var(--text-dim)}
+
+footer{border-top:1px solid var(--line-soft);padding:3rem 0 4rem;color:var(--text-faint);font-size:.76rem}
+footer .row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:1.5rem}
+footer code{font-family:var(--f-mono);background:rgba(255,255,255,.05);border:1px solid var(--line-soft);padding:.15em .45em;color:var(--text-dim)}
+
+.reveal{opacity:0;transform:translateY(18px);transition:opacity 900ms var(--ease),transform 900ms var(--ease)}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}.reveal{opacity:1;transform:none}}
+
+@media (max-width:960px){
+  .demo-grid{grid-template-columns:minmax(0,1fr)}
+  .variants{grid-template-columns:repeat(3,1fr)}
+  .compare,.steps{grid-template-columns:1fr 1fr}
+  .step:nth-child(3){border-left:0}.step:nth-child(n+3){border-top:1px solid var(--line-soft)}
+  .site-links{display:none}
+}
+@media (max-width:620px){
+  .stats{grid-template-columns:1fr 1fr}.stat:nth-child(3){border-left:0}.stat:nth-child(n+3){border-top:1px solid var(--line-soft)}
+  .swing-videos,.thumbs{grid-template-columns:1fr}
+  .variants{grid-template-columns:repeat(2,1fr)}
+  .steps,.compare{grid-template-columns:1fr}.step{border-left:0;border-top:1px solid var(--line-soft)}.step:first-child{border-top:0}
+  .kv{grid-template-columns:1fr 1fr}
+  .section-index{display:none}.section-head{grid-template-columns:1fr}
+  .filmstrip{grid-template-columns:repeat(6,1fr)}
+  .nav-cta{display:none}
+  .playerbar{gap:.5rem;padding-inline:.6rem}.counter{min-width:0}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<nav class="site-nav" id="nav">
+  <a class="brand" href="#top">World Model <b>Bench</b></a>
+  <ul class="site-links">
+    <li><a href="#gears">Gears</a></li>
+    <li><a href="#swing">Swing</a></li>
+    <li><a href="#mirror">Mirror</a></li>
+    <li><a href="#cuts">Cuts</a></li>
+    <li><a href="#method">Method</a></li>
+  </ul>
+  <a class="btn btn-ghost nav-cta" href="#gears" style="padding:.6rem 1rem;font-size:.7rem">Explore <span class="arrow">→</span></a>
+</nav>
+
+<main id="top">
+  <!-- ════════ HERO ════════ -->
+  <section class="hero">
+    <div class="shell">
+      <div class="hero__frame marks"><span class="m-tr"></span><span class="m-bl"></span>
+        <p class="hero__over">BigThink AI · Research</p>
+        <h1 class="hero__wordmark"><span>World Model</span><span class="accent">Bench</span></h1>
+        <p class="hero__tagline"><span class="crosshair"></span><span class="hero__tagline-text">Does it obey the world?</span><span class="crosshair"></span></p>
+        <p class="hero__mission">Video world models can render a plausible scene. These benchmarks check whether the scene behaves: gears that mesh at the right ratio, a swing that loses energy the way physics says it should, a mirror that remembers what it reflected, a cut that leaves the right pieces.</p>
+        <div class="hero__cta">
+          <a class="btn btn-primary" href="#gears">See the evaluators <span class="arrow">→</span></a>
+          <a class="btn btn-ghost" href="#method">How scoring works</a>
+        </div>
+        <div class="stats">
+          <div class="stat"><b>04</b><span class="label">Benchmark families</span></div>
+          <div class="stat"><b>25</b><span class="label">Tasks</span></div>
+          <div class="stat"><b id="statCases">—</b><span class="label">Diagnostic cases</span></div>
+          <div class="stat"><b>00</b><span class="label">Model runs shown</span></div>
+        </div>
+      </div>
+    </div>
+    <a class="hero__scroll" href="#gears">Scroll<i></i></a>
+  </section>
+
+  <!-- ════════ 01 GEARS ════════ -->
+  <section class="section" id="gears">
+    <div class="shell">
+      <div class="section-head reveal">
+        <div><p class="kicker">01 / Mechanics</p><h2 class="section-title" style="margin-top:1rem">Gear interaction</h2></div>
+        <div class="section-index">01</div>
+        <p class="lede">Each gear and its white tooth mark are tracked frame by frame. The evaluator checks rotation direction, the tooth-count ratio between meshed gears, where the marked tooth stops, whether every tooth survives, and image clarity. One required check failing is a fail, even when the weighted score is high.</p>
+      </div>
+
+      <div class="demo-grid reveal">
+        <div>
+          <div class="ctl-row"><span class="label">Task</span><div class="tabs" id="gearTasks"></div></div>
+          <div class="ctl-row"><span class="label">Case</span><div class="tabs" id="gearCases"></div></div>
+          <div class="marks"><span class="m-tr"></span><span class="m-bl"></span>
+            <div class="media"><span class="tag label">Rollout</span><img id="gearFrame" alt="Gear rollout frame"></div>
+            <div class="playerbar">
+              <button class="iconbtn" id="gearPlay" aria-label="Play"></button>
+              <input type="range" id="gearScrub" min="0" max="11" value="0" aria-label="Frame">
+              <span class="counter" id="gearCount">01 / 12</span>
+            </div>
+          </div>
+          <div class="filmstrip" id="gearStrip"></div>
+          <div class="thumbs">
+            <div class="media"><span class="tag label">Start</span><img id="gearBase" alt="Starting image"></div>
+            <div class="media"><span class="tag label">Target</span><img id="gearTarget" alt="Target final image"></div>
+          </div>
+        </div>
+
+        <aside class="panel pad">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem">
+            <div><span class="label faint">Weighted score</span><div class="score-big"><b id="gearScore">—</b><span>/ 1.000</span></div></div>
+            <span class="status" id="gearStatus"><i></i><span></span></span>
+          </div>
+          <p class="explain" id="gearExplain"></p>
+          <div class="bars" id="gearBars"></div>
+          <div class="divider"></div>
+          <span class="label faint">Detected evidence</span>
+          <ul class="evidence" id="gearEvidence"></ul>
+          <div class="kv" id="gearKv"></div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ 02 SWING ════════ -->
+  <section class="section" id="swing">
+    <div class="shell">
+      <div class="section-head reveal">
+        <div><p class="kicker">02 / Physics</p><h2 class="section-title" style="margin-top:1rem">Swing physics</h2></div>
+        <div class="section-index">02</div>
+        <p class="lede">A seat is released from 45° with hinge friction and air drag. The evaluator reads only decoded video pixels, recovers the swing angle, and compares each return peak against an independent physics reference. Peaks that rise above what a passive swing can reach cap the score at 10.</p>
+      </div>
+
+      <div class="reveal">
+        <div class="ctl-row"><span class="label">Example</span><div class="tabs" id="swingTabs"></div></div>
+        <div class="demo-grid">
+          <div>
+            <div class="marks"><span class="m-tr"></span><span class="m-bl"></span>
+              <div class="swing-videos">
+                <div class="media"><span class="tag label">Physics reference</span><video id="swingRef" muted playsinline preload="auto"></video></div>
+                <div class="media"><span class="tag label" id="swingCandTag">Candidate</span><video id="swingCand" muted playsinline preload="auto"></video></div>
+              </div>
+              <div class="playerbar">
+                <button class="iconbtn" id="swingPlay" aria-label="Play"></button>
+                <button class="iconbtn" id="swingRestart" aria-label="Restart"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.5 8a5.5 5.5 0 1 0 1.7-4"/><path d="M2.5 1.8v3h3"/></svg></button>
+                <input type="range" id="swingScrub" min="0" max="8" step="0.01" value="0" aria-label="Time">
+                <span class="counter" id="swingTime">0.00 s</span>
+                <select id="swingSpeed" aria-label="Playback speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option></select>
+              </div>
+            </div>
+            <div class="panel pad" style="margin-top:1rem">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap"><span class="label dim">Measured swing angle</span><div class="legend"><span><i style="background:var(--text-faint)"></i>Reference</span><span><i style="background:var(--steel-bright)"></i>Candidate</span></div></div>
+              <svg class="chart" id="swingChart" viewBox="0 0 720 230" role="img" aria-label="Swing angle over time, reference versus candidate"></svg>
+            </div>
+          </div>
+
+          <aside class="panel pad">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem">
+              <div><span class="label faint">Score</span><div class="score-big"><b id="swingScore">—</b><span>/ 100</span></div></div>
+              <span class="status" id="swingStatus"><i></i><span></span></span>
+            </div>
+            <p class="explain" id="swingExplain"></p>
+            <div id="swingCap"></div>
+            <div class="bars" id="swingBars"></div>
+            <div class="kv" id="swingKv"></div>
+            <div class="divider"></div>
+            <span class="label faint">Return peaks vs reference</span>
+            <div id="swingPeaks" style="overflow-x:auto;margin-top:.4rem"></div>
+          </aside>
+        </div>
+        <div class="compare" id="swingCompare"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ 03 MIRROR ════════ -->
+  <section class="section" id="mirror">
+    <div class="shell">
+      <div class="section-head reveal">
+        <div><p class="kicker">03 / Memory</p><h2 class="section-title" style="margin-top:1rem">Mirror memory</h2></div>
+        <div class="section-index">03</div>
+        <p class="lede">The camera turns to reveal a mirror, and a red sphere must appear in it exactly where the geometry puts it. The scorer checks four things: the reflection (R), no phantom objects (Ph), the sphere itself (C), and image quality (Q). Pick a simulated failure to see which checks catch it.</p>
+      </div>
+
+      <div class="demo-grid reveal">
+        <div>
+          <div class="marks"><span class="m-tr"></span><span class="m-bl"></span>
+            <div class="media mirror compare-slider" id="mirrorCompare">
+              <img id="mirrorTarget" alt="Ground truth final frame">
+              <div class="over"><img id="mirrorOut" alt="Simulated model output"></div>
+              <div class="handle" id="mirrorHandle"></div>
+              <span class="tag label">Ground truth</span><span class="tag label right" id="mirrorOutTag">Output</span>
+              <input type="range" min="0" max="100" value="50" id="mirrorSplit" aria-label="Compare ground truth and output">
+            </div>
+          </div>
+          <p class="faint" style="font-size:.72rem;margin:.5rem 0 0">Drag across the image to compare ground truth with the output.</p>
+          <div class="variants" id="mirrorVariants"></div>
+        </div>
+        <aside class="panel pad">
+          <div><span class="label faint">Mean of four checks</span><div class="score-big"><b id="mirrorScore">—</b><span>/ 1.00</span></div></div>
+          <div class="bars" id="mirrorBars"></div>
+          <div class="divider"></div>
+          <span class="label faint">Start frame</span>
+          <div class="media mirror" style="margin-top:.5rem"><img id="mirrorBase" alt="Starting frame before the camera turns"></div>
+          <p class="faint" style="font-size:.72rem;margin:.75rem 0 0">Demo scorer: single final frame, sphere found by colour, SSIM stands in for the LPIPS check named in the task spec.</p>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ 04 CUTS ════════ -->
+  <section class="section" id="cuts">
+    <div class="shell">
+      <div class="section-head reveal">
+        <div><p class="kicker">04 / Object permanence</p><h2 class="section-title" style="margin-top:1rem">Channel cuts</h2></div>
+        <div class="section-index">04</div>
+        <p class="lede">A knife makes a specified cut and then withdraws. Using the white cube as a ruler, the evaluator measures every piece and gap, checks that pieces plus kerf add back up to the uncut object, and follows the red and blue identity caps. Five reference cuts pass; seven broken rod cuts each fail for their own reason.</p>
+      </div>
+      <div class="reveal">
+        <div class="ctl-row"><span class="label">Reference</span><div class="tabs" id="cutRefs"></div></div>
+        <div class="ctl-row"><span class="label">Broken</span><div class="tabs" id="cutFails"></div></div>
+        <div class="demo-grid">
+          <div>
+            <div class="marks"><span class="m-tr"></span><span class="m-bl"></span>
+              <div class="media"><span class="tag label" id="cutTag">Rollout</span><video id="cutVideo" muted playsinline preload="auto"></video></div>
+              <div class="playerbar">
+                <button class="iconbtn" id="cutPlay" aria-label="Play"></button>
+                <input type="range" id="cutScrub" min="0" max="8" step="0.01" value="0" aria-label="Time">
+                <span class="counter" id="cutTime">0.00 s</span>
+              </div>
+            </div>
+            <div class="timeline" id="cutTimeline" aria-hidden="true"><span style="flex:1">Wait</span><span style="flex:6">Cut</span><span style="flex:1">Hold</span><i id="cutHead"></i></div>
+            <p class="explain" id="cutDesc"></p>
+            <div class="panel pad" style="margin-top:1rem">
+              <span class="label dim">Measured vs expected</span>
+              <div id="cutGeom" style="overflow-x:auto;margin-top:.4rem"></div>
+              <div class="kv" id="cutLedger"></div>
+            </div>
+          </div>
+          <aside class="panel pad">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem">
+              <div><span class="label faint">Mean of five scores</span><div class="score-big"><b id="cutScore">—</b><span>/ 1.00</span></div></div>
+              <span class="status" id="cutStatus"><i></i><span></span></span>
+            </div>
+            <div class="bars" id="cutBars"></div>
+            <div class="divider"></div>
+            <span class="label faint">Checks</span>
+            <div class="checks" id="cutChecks"></div>
+            <div id="cutReasons"></div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ METHOD ════════ -->
+  <section class="section" id="method">
+    <div class="shell">
+      <div class="section-head reveal">
+        <div><p class="kicker">05 / Method</p><h2 class="section-title" style="margin-top:1rem">How a clip is judged</h2></div>
+        <div class="section-index">05</div>
+        <p class="lede">Every family follows the same pattern. Nothing on this page comes from a world model: each example is a rendered control or a deliberately broken variant, built to show that the evaluator separates right from wrong.</p>
+      </div>
+      <div class="steps reveal">
+        <div class="step"><div class="n">01</div><h3>Prompt</h3><p>A fixed camera, a starting image, and a precise instruction with measurable quantities.</p></div>
+        <div class="step"><div class="n">02</div><h3>Track</h3><p>Markers, gears, spheres or pieces are located in each decoded frame. No hidden simulator state.</p></div>
+        <div class="step"><div class="n">03</div><h3>Measure</h3><p>Angles, ratios, peak heights, positions and timing are compared against an independent reference.</p></div>
+        <div class="step"><div class="n">04</div><h3>Decide</h3><p>Weighted scores plus hard gates: a physically impossible result fails or is capped, whatever else looks right.</p></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="shell row">
+    <div><span class="brand" style="font-size:.85rem">World Model <b>Bench</b></span><p style="margin:.6rem 0 0;max-width:52ch">Diagnostic examples only. Scores here demonstrate the evaluators and must not be averaged into a model ranking. Thresholds are provisional.</p></div>
+    <div><span class="label">Rebuild the data</span><p style="margin:.6rem 0 0"><code>python demo/build_data.py</code></p></div>
+  </div>
+</footer>
+</div>
+
+<script src="data.js"></script>
+<script>
+(() => {
+const B = window.BENCH;
+const $ = s => document.querySelector(s);
+const el = (tag, attrs = {}, html = '') => { const n = document.createElement(tag); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); if (html) n.innerHTML = html; return n; };
+const nice = s => s.replace(/^\d+_/, '').replaceAll('_', ' ');
+const tone = v => v >= .85 ? 'var(--good)' : v >= .5 ? 'var(--mid)' : 'var(--bad)';
+const ICON_PLAY = '<svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2.5v11l9-5.5z"/></svg>';
+const ICON_PAUSE = '<svg viewBox="0 0 16 16" fill="currentColor"><rect x="3.5" y="2.5" width="3" height="11"/><rect x="9.5" y="2.5" width="3" height="11"/></svg>';
+const statusClass = s => ({pass:'st-pass',scored:'st-pass',fail:'st-fail',invalid_motion:'st-fail',review_required:'st-review'}[s] || 'st-review');
+function setStatus(node, s, text) { node.className = 'status ' + statusClass(s); node.querySelector('span').textContent = text || s.replaceAll('_', ' '); }
+function bars(node, items) {
+  node.innerHTML = items.map(i => `<div><div class="bar-head"><span class="label">${i.label}</span><b>${i.text}</b></div><div class="track"><div class="fill"></div></div>${i.note ? `<div class="bar-note">${i.note}</div>` : ''}</div>`).join('');
+  requestAnimationFrame(() => node.querySelectorAll('.fill').forEach((f, k) => { const v = items[k].value; f.style.width = (v == null ? 0 : Math.max(0, Math.min(1, v)) * 100) + '%'; f.style.background = v == null ? 'var(--text-faint)' : tone(v); }));
+}
+function tabs(node, list, current, onPick, dot) {
+  node.innerHTML = '';
+  list.forEach(item => {
+    const b = el('button', {class: 'tab', type: 'button', 'aria-pressed': item.id === current}, (dot ? `<span class="dot" style="background:${dot(item)}"></span>` : '') + item.label);
+    b.onclick = () => onPick(item.id); node.append(b);
+  });
+}
+
+/* ───────── GEARS ───────── */
+const G = B.gear;
+const gearTasks = [...new Set(G.map(g => g.task))];
+const gearCases = [...new Set(G.map(g => g.case))];
+const caseLabel = {render_control:'Clean control',wrong_direction:'Wrong direction',slow_25:'Wrong speed',overshoot_15:'Overshoot',tooth_clean_v3:'Damaged tooth'};
+const caseExplain = {
+  render_control:'Clean control: the gears turn as requested and stop on the target.',
+  wrong_direction:'The driver gear turns against the requested direction, so every downstream gear does too.',
+  slow_25:'The driven gear turns 25% too slowly, breaking the tooth-count ratio. Real gears cannot slip like this.',
+  overshoot_15:'The marked tooth sails 15° past its requested stopping position.',
+  tooth_clean_v3:'One tooth is erased from a gear. Motion is perfect, so the score stays high, but the shape check fails the clip.'};
+const gearLabels = {motion_timing:'Motion & timing',gear_physics:'Gear physics',goal_stopping:'Goal & stop',mechanical_consistency:'Mechanics',image_quality:'Image quality'};
+let gTask = gearTasks[0], gCase = gearCases[0], gFrame = 0, gTimer = null;
+const gearStrip = $('#gearStrip');
+
+function gearRender() {
+  const x = G.find(g => g.task === gTask && g.case === gCase);
+  tabs($('#gearTasks'), gearTasks.map(t => ({id: t, label: nice(t)})), gTask, t => { gTask = t; gearRender(); });
+  $('#gearTasks').querySelectorAll('.tab').forEach(t => { t.classList.replace('tab', 'chip'); });
+  tabs($('#gearCases'), gearCases.map(c => ({id: c, label: caseLabel[c] || nice(c), c})), gCase, c => { gCase = c; gearRender(); },
+       i => { const r = G.find(g => g.task === gTask && g.case === i.c); return r.completion === 'pass' ? 'var(--good)' : 'var(--bad)'; });
+  $('#gearBase').src = x.base; $('#gearTarget').src = x.target;
+  x.frames.forEach(f => { const i = new Image(); i.src = f; });
+  gearStrip.innerHTML = '';
+  x.frames.forEach((f, i) => { const b = el('button', {type: 'button', 'aria-label': 'Frame ' + (i + 1)}, `<img src="${f}" alt="">`); b.onclick = () => { gearStop(); gearShow(i); }; gearStrip.append(b); });
+  gearShow(Math.min(gFrame, x.frames.length - 1));
+  $('#gearScore').textContent = x.weighted == null ? '—' : x.weighted.toFixed(3);
+  $('#gearScore').style.color = x.completion === 'pass' ? 'var(--text)' : 'var(--bad)';
+  setStatus($('#gearStatus'), x.completion);
+  $('#gearExplain').textContent = caseExplain[x.case] || '';
+  bars($('#gearBars'), Object.entries(gearLabels).map(([k, l]) => ({label: l, value: x.scores[k], text: x.scores[k] == null ? '—' : x.scores[k].toFixed(3)})));
+  $('#gearEvidence').innerHTML = x.evidence.length ? x.evidence.map(e => `<li>${e.replaceAll('_', ' ').replaceAll(';', '; ')}</li>`).join('') : '<li class="ok">No failed checks.</li>';
+  $('#gearKv').innerHTML = `<div><span class="label">Gears</span><b>${x.coverage.length}</b></div><div><span class="label">Tracked</span><b>${(Math.min(...x.coverage) * 100).toFixed(0)}%</b></div><div><span class="label">Angle p95</span><b>${Math.max(...x.angle_p95.map(v => v ?? 0)).toFixed(3)}°</b></div>`;
+}
+function gearShow(i) {
+  const x = G.find(g => g.task === gTask && g.case === gCase);
+  gFrame = i; $('#gearFrame').src = x.frames[i]; $('#gearScrub').max = x.frames.length - 1; $('#gearScrub').value = i;
+  $('#gearCount').textContent = String(i + 1).padStart(2, '0') + ' / ' + String(x.frames.length).padStart(2, '0');
+  gearStrip.querySelectorAll('button').forEach((b, k) => b.setAttribute('aria-current', k === i));
+}
+function gearStop() { clearInterval(gTimer); gTimer = null; $('#gearPlay').innerHTML = ICON_PLAY; $('#gearPlay').setAttribute('aria-label', 'Play'); }
+function gearPlay() {
+  if (gTimer) return gearStop();
+  const n = +$('#gearScrub').max + 1;
+  if (gFrame >= n - 1) gearShow(0);
+  $('#gearPlay').innerHTML = ICON_PAUSE; $('#gearPlay').setAttribute('aria-label', 'Pause');
+  gTimer = setInterval(() => { if (gFrame >= n - 1) { gearStop(); return; } gearShow(gFrame + 1); }, 260);
+}
+$('#gearPlay').innerHTML = ICON_PLAY; $('#gearPlay').onclick = gearPlay;
+$('#gearScrub').oninput = e => { gearStop(); gearShow(+e.target.value); };
+gearRender();
+
+/* ───────── SWING ───────── */
+const S = B.swing, SX = S.examples;
+const ref = SX.find(e => e.id === 'reference_control');
+const compLabel = {height:'Peak height',trajectory:'Trajectory',timing:'Timing',radius:'Radius',camera:'Camera'};
+let sId = 'under_damped';
+const vRef = $('#swingRef'), vCand = $('#swingCand');
+vRef.src = S.reference_video;
+let raf = null;
+
+function chart(x) {
+  const W = 720, H = 230, L = 40, R = 10, T = 12, Bm = 26, tMax = 8, aMax = 60;
+  const px = t => L + t / tMax * (W - L - R), py = a => T + (aMax - a) / (2 * aMax) * (H - T - Bm);
+  const path = s => s.filter(p => p[1] != null).map((p, i) => (i ? 'L' : 'M') + px(p[0]).toFixed(1) + ' ' + py(p[1]).toFixed(1)).join('');
+  let g = '<g class="grid">';
+  for (let a = -60; a <= 60; a += 30) g += `<line x1="${L}" x2="${W - R}" y1="${py(a)}" y2="${py(a)}"/>`;
+  g += '</g><g class="axis">';
+  for (let a = -60; a <= 60; a += 30) g += `<text x="${L - 8}" y="${py(a) + 3}" text-anchor="end">${a}°</text>`;
+  for (let t = 0; t <= 8; t += 2) g += `<text x="${px(t)}" y="${H - 6}" text-anchor="middle">${t}s</text>`;
+  g += '</g>';
+  g += `<line x1="${L}" x2="${W - R}" y1="${py(0)}" y2="${py(0)}" stroke="var(--line)"/>`;
+  g += `<path d="${path(ref.series)}" fill="none" stroke="var(--text-faint)" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+  if (x.id !== 'reference_control') g += `<path d="${path(x.series)}" fill="none" stroke="var(--steel-bright)" stroke-width="1.8"/>`;
+  else g += `<path d="${path(x.series)}" fill="none" stroke="var(--steel-bright)" stroke-width="1.8" opacity=".85"/>`;
+  (x.peaks || []).forEach(p => { const s = x.series.reduce((b, q) => Math.abs(q[0] - p.measured_time_s) < Math.abs(b[0] - p.measured_time_s) ? q : b); g += `<circle cx="${px(s[0])}" cy="${py(s[1])}" r="3" fill="var(--ink)" stroke="var(--steel-bright)" stroke-width="1.4"/>`; });
+  g += `<line id="playhead" x1="${L}" x2="${L}" y1="${T}" y2="${H - Bm}" stroke="var(--steel)" stroke-width="1"/>`;
+  $('#swingChart').innerHTML = g;
+  $('#swingChart').dataset.l = L; $('#swingChart').dataset.w = W - L - R;
+}
+function playhead(t) {
+  const c = $('#swingChart'), x = +c.dataset.l + Math.min(t, 8) / 8 * +c.dataset.w, ph = $('#playhead');
+  if (ph) { ph.setAttribute('x1', x); ph.setAttribute('x2', x); }
+  $('#swingScrub').value = t; $('#swingTime').textContent = t.toFixed(2) + ' s';
+}
+function swingRender() {
+  const x = SX.find(e => e.id === sId);
+  tabs($('#swingTabs'), SX.map(e => ({id: e.id, label: e.label, e})), sId, id => { sId = id; swingRender(); },
+       i => i.e.status === 'scored' && i.e.score >= 85 ? 'var(--good)' : i.e.status === 'scored' && i.e.score >= 40 ? 'var(--mid)' : 'var(--bad)');
+  const t = vCand.currentTime || 0, playing = !vCand.paused;
+  vCand.src = x.video; vCand.playbackRate = +$('#swingSpeed').value;
+  vCand.addEventListener('loadedmetadata', () => { vCand.currentTime = Math.min(t, vCand.duration || 8); if (playing) vCand.play(); }, {once: true});
+  $('#swingCandTag').textContent = x.label;
+  $('#swingScore').textContent = x.score == null ? '—' : x.score.toFixed(1);
+  $('#swingScore').style.color = x.score >= 85 ? 'var(--text)' : x.score >= 40 ? 'var(--mid)' : 'var(--bad)';
+  const st = x.status !== 'scored' ? ['fail', x.status.replaceAll('_', ' ')] : x.energy_violation ? ['fail', 'capped'] :
+             x.score >= 85 ? ['pass', 'matches physics'] : x.score >= 40 ? ['review', 'deviates'] : ['fail', 'fails physics'];
+  setStatus($('#swingStatus'), st[0], st[1]);
+  $('#swingExplain').textContent = x.description;
+  $('#swingCap').innerHTML = x.energy_violation ? `<span class="cap"><span class="crosshair"></span>Energy gate tripped: capped at 10 (uncapped ${x.uncapped.toFixed(1)})</span>` :
+    x.invalid.length ? `<ul class="evidence">${x.invalid.map(r => `<li>${r}</li>`).join('')}</ul>` : '';
+  bars($('#swingBars'), Object.entries(S.weights).map(([k, w]) => { const v = x.components[k]; return {label: `${compLabel[k]} <span class="faint">· ${w} pts</span>`, value: v == null ? null : v / w, text: v == null ? '—' : `${v.toFixed(1)} / ${w}`}; }));
+  const m = x.metrics;
+  $('#swingKv').innerHTML = `<div><span class="label">Angle RMSE</span><b>${m.angle_rmse_deg == null ? '—' : m.angle_rmse_deg.toFixed(2) + '°'}</b></div><div><span class="label">Peak height err</span><b>${m.peak_height_mae_m == null ? '—' : (m.peak_height_mae_m * 100).toFixed(1) + ' cm'}</b></div><div><span class="label">Peaks found</span><b>${m.observed_peak_count ?? 0}</b></div>`;
+  $('#swingPeaks').innerHTML = x.peaks.length ? `<table><thead><tr><th>#</th><th>Time</th><th>Height</th><th>Reference</th><th>Error</th></tr></thead><tbody>${x.peaks.map(p => `<tr><td>${p.number}</td><td>${p.measured_time_s.toFixed(2)} s</td><td>${(p.measured_height_m * 100).toFixed(1)} cm</td><td>${(p.reference_height_m * 100).toFixed(1)} cm</td><td style="color:${Math.abs(p.height_error_m) < .01 ? 'var(--good)' : Math.abs(p.height_error_m) < .05 ? 'var(--mid)' : 'var(--bad)'}">${p.height_error_m >= 0 ? '+' : ''}${(p.height_error_m * 100).toFixed(1)} cm</td></tr>`).join('')}</tbody></table>` : '<p class="faint" style="font-size:.74rem;margin:.3rem 0 0">No return peaks: the swing never moved.</p>';
+  chart(x); playhead(t);
+  $('#swingCompare').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.id === sId));
+}
+SX.forEach(e => {
+  const b = el('button', {type: 'button', 'data-id': e.id}, `<span class="label faint">${e.label}</span><b style="color:${e.score >= 85 ? 'var(--text)' : e.score >= 40 ? 'var(--mid)' : 'var(--bad)'}">${e.score == null ? '—' : e.score.toFixed(1)}</b><span class="faint" style="font-size:.7rem">${e.status === 'scored' ? (e.energy_violation ? 'capped: energy gain' : 'scored') : 'invalid motion'}</span>`);
+  b.onclick = () => { sId = e.id; swingRender(); document.getElementById('swing').scrollIntoView({behavior: 'smooth'}); };
+  $('#swingCompare').append(b);
+});
+function tick() { playhead(vCand.currentTime); if (Math.abs(vRef.currentTime - vCand.currentTime) > .08) vRef.currentTime = vCand.currentTime; raf = vCand.paused ? null : requestAnimationFrame(tick); }
+function setPlayIcon() { const p = !vCand.paused; $('#swingPlay').innerHTML = p ? ICON_PAUSE : ICON_PLAY; $('#swingPlay').setAttribute('aria-label', p ? 'Pause' : 'Play'); }
+vCand.addEventListener('play', () => { vRef.playbackRate = vCand.playbackRate; vRef.currentTime = vCand.currentTime; vRef.play().catch(() => {}); setPlayIcon(); if (!raf) raf = requestAnimationFrame(tick); });
+vCand.addEventListener('pause', () => { vRef.pause(); setPlayIcon(); });
+vCand.addEventListener('ended', () => { vRef.pause(); setPlayIcon(); });
+$('#swingPlay').onclick = () => { if (vCand.paused) { if (vCand.ended) vCand.currentTime = 0; vCand.play(); } else vCand.pause(); };
+$('#swingRestart').onclick = () => { vCand.currentTime = 0; vRef.currentTime = 0; playhead(0); vCand.play(); };
+$('#swingScrub').oninput = e => { const t = +e.target.value; vCand.currentTime = t; vRef.currentTime = t; playhead(t); };
+$('#swingSpeed').onchange = e => { vCand.playbackRate = vRef.playbackRate = +e.target.value; };
+setPlayIcon(); swingRender();
+
+/* ───────── MIRROR ───────── */
+const M = B.mirror;
+const dimLabel = {R:'Reflection',Ph:'No phantoms',C:'Sphere',Q:'Image quality'};
+let mId = M.variants[1].id;
+$('#mirrorTarget').src = M.target; $('#mirrorBase').src = M.base;
+M.variants.forEach(v => {
+  const b = el('button', {class: 'variant', type: 'button', 'data-id': v.id}, `<img src="${v.image}" alt=""><div><span>${v.label}</span><b style="color:${tone(v.mean)}">${v.mean.toFixed(2)}</b></div>`);
+  b.onclick = () => { mId = v.id; mirrorRender(); }; $('#mirrorVariants').append(b);
+});
+function mirrorRender() {
+  const v = M.variants.find(x => x.id === mId);
+  $('#mirrorOut').src = v.image; $('#mirrorOutTag').textContent = v.label;
+  $('#mirrorScore').textContent = v.mean.toFixed(2); $('#mirrorScore').style.color = tone(v.mean);
+  bars($('#mirrorBars'), ['R', 'Ph', 'C', 'Q'].map(k => ({label: `${dimLabel[k]} <span class="faint">· ${k}</span>`, value: v.scores[k].value, text: v.scores[k].value.toFixed(2), note: v.scores[k].detail})));
+  $('#mirrorVariants').querySelectorAll('.variant').forEach(b => b.setAttribute('aria-pressed', b.dataset.id === mId));
+}
+$('#mirrorSplit').oninput = e => { const p = e.target.value; $('#mirrorCompare .over').style.clipPath = `inset(0 0 0 ${p}%)`; $('#mirrorHandle').style.left = p + '%'; };
+mirrorRender();
+
+/* ───────── CUTS ───────── */
+const C = B.channel, CX = C.examples;
+const cutLabel = {timing:'Timing',geometry:'Geometry',conservation:'Conservation',identity:'Identity',quality:'Image quality'};
+const checkLabel = {camera_fixed:'Camera fixed',intact_during_wait:'Intact while waiting',cut_in_window:'Cut in window',still_during_hold:'Still during hold',
+  piece_count:'Piece count',markers_on_correct_pieces:'Markers on right pieces',pieces_keep_size:'Pieces keep size',cube_unchanged:'Cube unchanged',
+  cut_visible:'Cut visible',markers_readable:'Markers readable',sharp_enough_to_measure:'Sharp enough',stable_no_flicker:'No flicker'};
+const vCut = $('#cutVideo');
+let cId = 'reference_01';
+const shortTitle = id => C.tasks[id].title.replace(/^(Cut|Slice|Mitre cut) (a |an )?/i, '').replace(/ (at|into|in) .*/, '');
+const qname = n => n.replace(/_s2?$|_deg$/, '').replaceAll('_', ' ');
+function cutRender() {
+  const x = CX.find(e => e.id === cId), task = C.tasks[x.task];
+  const mk = (list, node) => tabs(node, list.map(e => ({id: e.id, label: e.kind === 'reference_control' ? `${e.task.slice(0, 2)} · ${shortTitle(e.task)}` : e.label, e})), cId,
+    id => { cId = id; cutRender(); }, i => i.e.completion === 'pass' ? 'var(--good)' : 'var(--bad)');
+  mk(CX.filter(e => e.kind === 'reference_control'), $('#cutRefs'));
+  mk(CX.filter(e => e.kind !== 'reference_control'), $('#cutFails'));
+  const was = !vCut.paused;
+  vCut.src = x.video; vCut.poster = task.final;
+  if (was) vCut.play().catch(() => {});
+  $('#cutTag').textContent = `${task.title}${x.kind === 'reference_control' ? '' : ' · ' + x.label}`;
+  $('#cutDesc').textContent = x.description;
+  $('#cutScore').textContent = x.overall == null ? '—' : x.overall.toFixed(2);
+  $('#cutScore').style.color = x.completion === 'pass' ? 'var(--text)' : tone(x.overall ?? 0);
+  setStatus($('#cutStatus'), x.completion);
+  bars($('#cutBars'), Object.entries(cutLabel).map(([k, l]) => ({label: l, value: x.scores[k], text: x.scores[k] == null ? 'n/a' : x.scores[k].toFixed(2),
+    note: x.scores[k] == null ? 'not measurable from this camera' : ''})));
+  $('#cutChecks').innerHTML = Object.entries(x.checks).map(([grp, cs]) => `<div class="check-group"><span class="label faint">${grp}</span>${Object.entries(cs)
+    .map(([c, ok]) => `<span class="check ${ok ? 'ok' : 'no'}">${ok ? '✓' : '✕'} ${checkLabel[c] || c}</span>`).join('')}</div>`).join('');
+  $('#cutReasons').innerHTML = x.reasons.length ? `<div class="divider"></div><span class="label faint">Why it fails</span><ul class="evidence">${x.reasons.map(r => `<li>${r}</li>`).join('')}</ul>` :
+    (x.notes.length ? `<div class="divider"></div><p class="faint" style="font-size:.72rem;margin:0">${x.notes[0]}</p>` : '');
+  const rows = Object.entries(x.geometry).map(([n, g]) => {
+    if (!g) return `<tr><td>${qname(n)}</td><td>—</td><td>—</td><td style="color:var(--bad)">not measured</td></tr>`;
+    const u = g.unit === 'deg' ? '°' : n.endsWith('_s2') ? ' s²' : ' s', lim = g.unit === 'deg' ? 5 : .12;
+    return `<tr><td>${qname(n)}</td><td>${g.expected.toFixed(2)}${u}</td><td>${g.measured.toFixed(3)}${u}</td><td style="color:${g.error <= lim / 2 ? 'var(--good)' : g.error <= lim ? 'var(--mid)' : 'var(--bad)'}">${g.error.toFixed(3)}${g.unit === 'deg' ? '°' : ' s'}</td></tr>`;
+  }).join('');
+  $('#cutGeom').innerHTML = `<table><thead><tr><th>Quantity</th><th>Expected</th><th>Measured</th><th>Error</th></tr></thead><tbody>${rows}</tbody></table>`;
+  const L = x.ledger;
+  $('#cutLedger').innerHTML = L ? `<div><span class="label">Uncut</span><b>${L.uncut.toFixed(2)}</b></div><div><span class="label">Pieces + kerf</span><b>${L.pieces == null ? '—' : (L.pieces + L.kerf).toFixed(2)}</b></div><div><span class="label">Residual</span><b style="color:${L.residual_percent == null ? 'var(--bad)' : tone(1 - L.residual_percent / 5)}">${L.residual_percent == null ? '—' : L.residual_percent.toFixed(2) + '%'}</b></div>`
+    : `<div style="grid-column:1/-1"><span class="label">Material ledger</span><b style="font-size:.8rem;font-weight:400;color:var(--text-dim)">Not scored: the channel's depth is hidden from this camera.</b></div>`;
+}
+function cutTick() { const t = vCut.currentTime || 0; $('#cutScrub').value = t; $('#cutTime').textContent = t.toFixed(2) + ' s'; $('#cutHead').style.left = Math.min(t / 8, 1) * 100 + '%'; if (!vCut.paused) requestAnimationFrame(cutTick); }
+function cutIcon() { $('#cutPlay').innerHTML = vCut.paused ? ICON_PLAY : ICON_PAUSE; $('#cutPlay').setAttribute('aria-label', vCut.paused ? 'Play' : 'Pause'); }
+vCut.addEventListener('play', () => { cutIcon(); requestAnimationFrame(cutTick); });
+vCut.addEventListener('pause', cutIcon); vCut.addEventListener('ended', cutIcon);
+vCut.addEventListener('seeked', cutTick); vCut.addEventListener('loadeddata', cutTick);
+$('#cutPlay').onclick = () => { if (vCut.paused) { if (vCut.ended) vCut.currentTime = 0; vCut.play(); } else vCut.pause(); };
+$('#cutScrub').oninput = e => { vCut.currentTime = +e.target.value; cutTick(); };
+cutIcon(); cutRender();
+
+/* ───────── chrome: stats, nav, reveal ───────── */
+$('#statCases').textContent = G.length + SX.length + M.variants.length + CX.length;
+const nav = $('#nav');
+const onScroll = () => nav.dataset.scrolled = scrollY > 40;
+addEventListener('scroll', onScroll, {passive: true}); onScroll();
+const links = [...document.querySelectorAll('.site-links a')];
+const spy = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.setAttribute('aria-current', a.getAttribute('href') === '#' + e.target.id)); }), {rootMargin: '-45% 0px -50% 0px'});
+document.querySelectorAll('main > section[id]').forEach(s => spy.observe(s));
+const rev = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); rev.unobserve(e.target); } }), {threshold: .12});
+document.querySelectorAll('.reveal').forEach(n => rev.observe(n));
+})();
+</script>
+</body>
+</html>

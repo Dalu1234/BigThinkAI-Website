@@ -5,6 +5,7 @@ const LINKS = [
   { href: '/#what-we-do', label: 'What We Do' },
   { href: '/#projects', label: 'EDGE Projects' },
   { href: '/heartbeat', label: 'Heartbeat' },
+  { href: '/world-model-bench/demo/', label: 'World Model Bench' },
   { href: '/#whats-next', label: "What's Next" },
   { href: '/#join', label: 'Join' },
 ]

@@ -97,6 +97,7 @@ export const PROJECTS: Project[] = [
     sector: 'AI evaluation · World models',
     stage: 'Building',
     target: 'WACV 2027 workshop paper',
+    demo: { href: '/world-model-bench/demo/', label: 'See the benchmark' },
     why:
       'Anyone deploying a world model needs to know where its physics stops holding. Today’s evaluations ask another model for an opinion. Particle-level ground truth gives a number you can hold a system to.',
     skills: [
