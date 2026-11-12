@@ -49,8 +49,8 @@ export type Project = {
   target: string
   /** Why it matters outside the club. Written for a partner, not a recruit. */
   why: string
-  /** A page on this site showing the work itself. Only some teams have one. */
-  demo?: { href: string; label: string }
+  /** Pages on this site showing the work itself. Only some teams have any. */
+  demos?: { href: string; label: string }[]
   /** The technical approach — methods and stack the team works in. */
   skills: string[]
   goal: string
@@ -70,6 +70,10 @@ export const PROJECTS: Project[] = [
     sector: 'Agriculture · Invasive species',
     stage: 'Scoping',
     target: 'Field detection & spread forecasting',
+    demos: [
+      { href: '/projects/lantern-demo/story.html', label: 'Watch how it works' },
+      { href: '/projects/lantern-demo/index.html', label: 'Explore the campus map' },
+    ],
     why:
       'Growers and agencies work off scattered hand-filed sightings. Detection plus a forecast gives them a map they can act on before an infestation sets in.',
     skills: [
@@ -97,7 +101,7 @@ export const PROJECTS: Project[] = [
     sector: 'AI evaluation · World models',
     stage: 'Building',
     target: 'WACV 2027 workshop paper',
-    demo: { href: '/world-model-bench/demo/', label: 'See the benchmark' },
+    demos: [{ href: '/world-model-bench/demo/', label: 'See the benchmark' }],
     why:
       'Anyone deploying a world model needs to know where its physics stops holding. Today’s evaluations ask another model for an opinion. Particle-level ground truth gives a number you can hold a system to.',
     skills: [
@@ -126,7 +130,7 @@ export const PROJECTS: Project[] = [
     sector: 'Audio AI · Conversational agents',
     stage: 'Building',
     target: 'ICASSP 2027 challenge entry',
-    demo: { href: '/heartbeat', label: 'See the results' },
+    demos: [{ href: '/heartbeat', label: 'See the results' }],
     why:
       'Voice products fail in the same place: they talk over people and miss the room. Knowing when to stay quiet is what makes an audio agent usable, and it is what this challenge measures.',
     skills: [

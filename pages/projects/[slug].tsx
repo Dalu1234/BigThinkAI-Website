@@ -110,12 +110,12 @@ export default function ProjectPage({ slug }: Props) {
                   Talk to us about this{' '}
                   <span className="arrow" aria-hidden="true">→</span>
                 </a>
-                {project.demo && (
-                  <a className="btn btn-ghost" href={project.demo.href}>
-                    {project.demo.label}{' '}
+                {project.demos?.map((d) => (
+                  <a className="btn btn-ghost" key={d.href} href={d.href}>
+                    {d.label}{' '}
                     <span className="arrow" aria-hidden="true">→</span>
                   </a>
-                )}
+                ))}
                 <a className="btn btn-ghost" href="#brief">
                   Read the brief
                 </a>
